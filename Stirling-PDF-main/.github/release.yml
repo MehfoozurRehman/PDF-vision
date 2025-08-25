@@ -1,0 +1,30 @@
+changelog:
+  categories:
+    - title: Bug Fixes
+      labels:
+        - Bug
+
+    - title: Enhancements
+      labels:
+        - enhancement
+
+    - title: Minor Enhancements
+      labels:
+        - Java
+        - Front End
+
+    - title: Docker Updates
+      labels:
+        - Docker
+
+    - title: Translation Changes
+      labels:
+        - Translation
+
+    - title: Development Tools
+      labels:
+        - Devtools
+
+    - title: Other Changes
+      labels:
+        - "*"
