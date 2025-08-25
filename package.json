@@ -13,6 +13,7 @@
     "lint": "next lint",
     "electron": "electron .",
     "pack": "electron-builder --dir",
+    "pack:win": "electron-builder --win",
     "dist": "electron-builder"
   },
   "keywords": [
