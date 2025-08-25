@@ -24,7 +24,7 @@ export interface PDFInfo {
 }
 
 export interface SplitOptions {
-  splitType: 'pages' | 'size' | 'chapters';
+  splitType: "pages" | "size" | "chapters";
   pages?: number[];
   pageRanges?: string;
   splitAfterPages?: number;
@@ -33,8 +33,8 @@ export interface SplitOptions {
 }
 
 export interface MergeOptions {
-  sortType?: 'name' | 'date' | 'size';
-  sortOrder?: 'asc' | 'desc';
+  sortType?: "name" | "date" | "size";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface CompressOptions {
@@ -47,7 +47,7 @@ export interface CompressOptions {
 export interface WatermarkOptions {
   text?: string;
   image?: File;
-  position: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  position: "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
   opacity: number;
   rotation?: number;
   fontSize?: number;
@@ -68,11 +68,11 @@ export interface SecurityOptions {
 }
 
 export interface ConversionOptions {
-  format: 'png' | 'jpg' | 'gif' | 'tiff' | 'bmp' | 'webp';
+  format: "png" | "jpg" | "gif" | "tiff" | "bmp" | "webp";
   dpi?: number;
   quality?: number;
-  colorType?: 'rgb' | 'grayscale' | 'blackwhite';
-  singleOrMultiple?: 'single' | 'multiple';
+  colorType?: "rgb" | "grayscale" | "blackwhite";
+  singleOrMultiple?: "single" | "multiple";
 }
 
 export interface OCROptions {
@@ -81,7 +81,7 @@ export interface OCROptions {
   deskew?: boolean;
   clean?: boolean;
   cleanFinal?: boolean;
-  ocrType?: 'skip-text' | 'force-ocr' | 'skip-ocr';
+  ocrType?: "skip-text" | "force-ocr" | "skip-ocr";
 }
 
 export interface RotateOptions {

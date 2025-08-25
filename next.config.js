@@ -1,17 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: "export",
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
-  distDir: 'out',
+  distDir: "out",
   images: {
-    unoptimized: true
+    unoptimized: true,
   },
   webpack: (config, { isServer }) => {
     // Handle PDF.js worker
     config.resolve.alias = {
       ...config.resolve.alias,
-      'pdfjs-dist/build/pdf.worker.entry': 'pdfjs-dist/build/pdf.worker.min.js'
+      "pdfjs-dist/build/pdf.worker.entry": "pdfjs-dist/build/pdf.worker.min.js",
     };
 
     // Handle canvas for PDF rendering
@@ -21,25 +21,25 @@ const nextConfig = {
         canvas: false,
         fs: false,
         path: false,
-        crypto: false
+        crypto: false,
       };
     }
 
     // Handle node modules that need to be external
     config.externals = config.externals || [];
     if (isServer) {
-      config.externals.push('canvas');
+      config.externals.push("canvas");
     }
 
     return config;
   },
   experimental: {
-    esmExternals: 'loose'
+    esmExternals: "loose",
   },
   // Disable server-side features for Electron
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: true
+  swcMinify: true,
 };
 
 module.exports = nextConfig;

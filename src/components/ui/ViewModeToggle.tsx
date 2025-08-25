@@ -1,32 +1,33 @@
-'use client'
+"use client";
 
-import { useUI } from '@/store/ui-store'
-import { EyeIcon, Squares2X2Icon, QueueListIcon } from '@heroicons/react/24/outline'
+import { EyeIcon, QueueListIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
+
+import { useUI } from "@/store/ui-store";
 
 interface ViewModeToggleProps {
-  className?: string
+  className?: string;
 }
 
-export default function ViewModeToggle({ className = '' }: ViewModeToggleProps) {
-  const { state: uiState, dispatch: uiDispatch } = useUI()
+export default function ViewModeToggle({ className = "" }: ViewModeToggleProps) {
+  const { state: uiState, dispatch: uiDispatch } = useUI();
 
   const viewModeIcons = {
     minimal: EyeIcon,
     hover: Squares2X2Icon,
-    expanded: QueueListIcon
-  }
+    expanded: QueueListIcon,
+  };
 
   const viewModeLabels = {
-    minimal: 'Minimal View',
-    hover: 'Hover View', 
-    expanded: 'Expanded View'
-  }
+    minimal: "Minimal View",
+    hover: "Hover View",
+    expanded: "Expanded View",
+  };
 
   const handleToggle = () => {
-    uiDispatch({ type: 'TOGGLE_VIEW_MODE' })
-  }
+    uiDispatch({ type: "TOGGLE_VIEW_MODE" });
+  };
 
-  const CurrentIcon = viewModeIcons[uiState.viewMode]
+  const CurrentIcon = viewModeIcons[uiState.viewMode];
 
   return (
     <div className={`fixed bottom-4 right-4 z-40 ${className}`}>
@@ -42,5 +43,5 @@ export default function ViewModeToggle({ className = '' }: ViewModeToggleProps) 
         </div>
       </button>
     </div>
-  )
+  );
 }

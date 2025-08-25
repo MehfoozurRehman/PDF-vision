@@ -1,13 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { cn } from '@/lib/utils';
+import React, { useEffect, useRef } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   description?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: "sm" | "md" | "lg" | "xl" | "full";
   children: React.ReactNode;
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
@@ -20,12 +20,12 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   title,
   description,
-  size = 'md',
+  size = "md",
   children,
   showCloseButton = true,
   closeOnOverlayClick = true,
   closeOnEscape = true,
-  className
+  className,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
@@ -35,17 +35,17 @@ const Modal: React.FC<ModalProps> = ({
     if (!closeOnEscape) return;
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
+      if (event.key === "Escape" && isOpen) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen, onClose, closeOnEscape]);
 
@@ -62,24 +62,24 @@ const Modal: React.FC<ModalProps> = ({
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-    full: 'max-w-full mx-4'
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+    full: "max-w-full mx-4",
   };
 
   const handleOverlayClick = (event: React.MouseEvent) => {
@@ -91,24 +91,24 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
         onClick={handleOverlayClick}
         aria-hidden="true"
       />
-      
+
       {/* Modal */}
       <div
         ref={modalRef}
         className={cn(
-          'relative w-full bg-white rounded-2xl shadow-2xl transform transition-all duration-300 scale-100 opacity-100',
+          "relative w-full bg-white rounded-2xl shadow-2xl transform transition-all duration-300 scale-100 opacity-100",
           sizeClasses[size],
-          className
+          className,
         )}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'modal-title' : undefined}
-        aria-describedby={description ? 'modal-description' : undefined}
+        aria-labelledby={title ? "modal-title" : undefined}
+        aria-describedby={description ? "modal-description" : undefined}
         tabIndex={-1}
       >
         {/* Header */}
@@ -137,11 +137,9 @@ const Modal: React.FC<ModalProps> = ({
             )}
           </div>
         )}
-        
+
         {/* Content */}
-        <div className="p-6">
-          {children}
-        </div>
+        <div className="p-6">{children}</div>
       </div>
     </div>
   );

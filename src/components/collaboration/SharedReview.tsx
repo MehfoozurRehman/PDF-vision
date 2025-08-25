@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState, useRef } from 'react'
-import { Card } from '@/components/ui'
+import React, { useState, useRef } from "react";
+import { Card } from "@/components/ui";
 import {
   ShareIcon,
   XMarkIcon,
@@ -17,98 +17,98 @@ import {
   LinkIcon,
   EnvelopeIcon,
   CalendarIcon,
-  BellIcon
-} from '@heroicons/react/24/outline'
-import { cn } from '@/lib/utils'
+  BellIcon,
+} from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 
 interface Reviewer {
-  id: string
-  name: string
-  email: string
-  avatar?: string
-  role: 'reviewer' | 'approver' | 'observer'
-  status: 'pending' | 'reviewing' | 'approved' | 'rejected' | 'completed'
-  joinedAt?: Date
-  lastActivity?: Date
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: "reviewer" | "approver" | "observer";
+  status: "pending" | "reviewing" | "approved" | "rejected" | "completed";
+  joinedAt?: Date;
+  lastActivity?: Date;
   permissions: {
-    canComment: boolean
-    canApprove: boolean
-    canEdit: boolean
-    canShare: boolean
-  }
+    canComment: boolean;
+    canApprove: boolean;
+    canEdit: boolean;
+    canShare: boolean;
+  };
 }
 
 interface ReviewSession {
-  id: string
-  title: string
-  description: string
-  createdBy: string
-  createdAt: Date
-  deadline?: Date
-  status: 'draft' | 'active' | 'completed' | 'cancelled'
-  reviewers: Reviewer[]
+  id: string;
+  title: string;
+  description: string;
+  createdBy: string;
+  createdAt: Date;
+  deadline?: Date;
+  status: "draft" | "active" | "completed" | "cancelled";
+  reviewers: Reviewer[];
   settings: {
-    requireAllApprovals: boolean
-    allowAnonymousComments: boolean
-    autoReminders: boolean
-    trackChanges: boolean
-  }
-  shareLink?: string
+    requireAllApprovals: boolean;
+    allowAnonymousComments: boolean;
+    autoReminders: boolean;
+    trackChanges: boolean;
+  };
+  shareLink?: string;
   notifications: {
-    onComment: boolean
-    onApproval: boolean
-    onDeadline: boolean
-  }
+    onComment: boolean;
+    onApproval: boolean;
+    onDeadline: boolean;
+  };
 }
 
 interface SharedReviewProps {
-  documentId: string
-  onCreateSession: (session: Omit<ReviewSession, 'id' | 'createdAt'>) => void
-  onUpdateSession: (id: string, updates: Partial<ReviewSession>) => void
-  onDeleteSession: (id: string) => void
-  onInviteReviewer: (sessionId: string, reviewer: Omit<Reviewer, 'id' | 'joinedAt'>) => void
-  onRemoveReviewer: (sessionId: string, reviewerId: string) => void
-  sessions: ReviewSession[]
-  currentUser: { id: string; name: string; email: string }
-  isActive: boolean
-  onClose: () => void
+  documentId: string;
+  onCreateSession: (session: Omit<ReviewSession, "id" | "createdAt">) => void;
+  onUpdateSession: (id: string, updates: Partial<ReviewSession>) => void;
+  onDeleteSession: (id: string) => void;
+  onInviteReviewer: (sessionId: string, reviewer: Omit<Reviewer, "id" | "joinedAt">) => void;
+  onRemoveReviewer: (sessionId: string, reviewerId: string) => void;
+  sessions: ReviewSession[];
+  currentUser: { id: string; name: string; email: string };
+  isActive: boolean;
+  onClose: () => void;
 }
 
 const REVIEWER_ROLES = [
   {
-    id: 'reviewer' as const,
-    name: 'Reviewer',
-    description: 'Can add comments and suggestions',
-    permissions: { canComment: true, canApprove: false, canEdit: false, canShare: false }
+    id: "reviewer" as const,
+    name: "Reviewer",
+    description: "Can add comments and suggestions",
+    permissions: { canComment: true, canApprove: false, canEdit: false, canShare: false },
   },
   {
-    id: 'approver' as const,
-    name: 'Approver',
-    description: 'Can approve or reject the document',
-    permissions: { canComment: true, canApprove: true, canEdit: false, canShare: false }
+    id: "approver" as const,
+    name: "Approver",
+    description: "Can approve or reject the document",
+    permissions: { canComment: true, canApprove: true, canEdit: false, canShare: false },
   },
   {
-    id: 'observer' as const,
-    name: 'Observer',
-    description: 'Can view comments but not add them',
-    permissions: { canComment: false, canApprove: false, canEdit: false, canShare: false }
-  }
-]
+    id: "observer" as const,
+    name: "Observer",
+    description: "Can view comments but not add them",
+    permissions: { canComment: false, canApprove: false, canEdit: false, canShare: false },
+  },
+];
 
 const STATUS_COLORS = {
-  pending: '#f59e0b',
-  reviewing: '#3b82f6',
-  approved: '#10b981',
-  rejected: '#ef4444',
-  completed: '#6b7280'
-}
+  pending: "#f59e0b",
+  reviewing: "#3b82f6",
+  approved: "#10b981",
+  rejected: "#ef4444",
+  completed: "#6b7280",
+};
 
 const SESSION_STATUS_COLORS = {
-  draft: '#6b7280',
-  active: '#3b82f6',
-  completed: '#10b981',
-  cancelled: '#ef4444'
-}
+  draft: "#6b7280",
+  active: "#3b82f6",
+  completed: "#10b981",
+  cancelled: "#ef4444",
+};
 
 export default function SharedReview({
   documentId,
@@ -120,129 +120,129 @@ export default function SharedReview({
   sessions,
   currentUser,
   isActive,
-  onClose
+  onClose,
 }: SharedReviewProps) {
-  const [activeTab, setActiveTab] = useState<'sessions' | 'create' | 'invite'>('sessions')
-  const [selectedSession, setSelectedSession] = useState<string | null>(null)
-  
+  const [activeTab, setActiveTab] = useState<"sessions" | "create" | "invite">("sessions");
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
+
   // Create session form
   const [newSession, setNewSession] = useState({
-    title: '',
-    description: '',
-    deadline: '',
+    title: "",
+    description: "",
+    deadline: "",
     requireAllApprovals: false,
     allowAnonymousComments: true,
     autoReminders: true,
-    trackChanges: true
-  })
-  
+    trackChanges: true,
+  });
+
   // Invite reviewer form
   const [newReviewer, setNewReviewer] = useState({
-    name: '',
-    email: '',
-    role: 'reviewer' as const
-  })
-  
-  const [shareMethod, setShareMethod] = useState<'email' | 'link'>('email')
-  const [emailMessage, setEmailMessage] = useState('')
+    name: "",
+    email: "",
+    role: "reviewer" as const,
+  });
 
-  const activeSessions = sessions.filter(s => s.status === 'active')
-  const completedSessions = sessions.filter(s => s.status === 'completed')
+  const [shareMethod, setShareMethod] = useState<"email" | "link">("email");
+  const [emailMessage, setEmailMessage] = useState("");
+
+  const activeSessions = sessions.filter((s) => s.status === "active");
+  const completedSessions = sessions.filter((s) => s.status === "completed");
 
   const handleCreateSession = () => {
-    if (!newSession.title.trim()) return
-    
-    const session: Omit<ReviewSession, 'id' | 'createdAt'> = {
+    if (!newSession.title.trim()) return;
+
+    const session: Omit<ReviewSession, "id" | "createdAt"> = {
       title: newSession.title,
       description: newSession.description,
       createdBy: currentUser.id,
       deadline: newSession.deadline ? new Date(newSession.deadline) : undefined,
-      status: 'draft',
+      status: "draft",
       reviewers: [],
       settings: {
         requireAllApprovals: newSession.requireAllApprovals,
         allowAnonymousComments: newSession.allowAnonymousComments,
         autoReminders: newSession.autoReminders,
-        trackChanges: newSession.trackChanges
+        trackChanges: newSession.trackChanges,
       },
       shareLink: `${window.location.origin}/review/${documentId}/${Date.now()}`,
       notifications: {
         onComment: true,
         onApproval: true,
-        onDeadline: true
-      }
-    }
-    
-    onCreateSession(session)
-    
+        onDeadline: true,
+      },
+    };
+
+    onCreateSession(session);
+
     // Reset form
     setNewSession({
-      title: '',
-      description: '',
-      deadline: '',
+      title: "",
+      description: "",
+      deadline: "",
       requireAllApprovals: false,
       allowAnonymousComments: true,
       autoReminders: true,
-      trackChanges: true
-    })
-    
-    setActiveTab('sessions')
-  }
+      trackChanges: true,
+    });
+
+    setActiveTab("sessions");
+  };
 
   const handleInviteReviewer = () => {
-    if (!selectedSession || !newReviewer.name.trim() || !newReviewer.email.trim()) return
-    
-    const roleConfig = REVIEWER_ROLES.find(r => r.id === newReviewer.role)
-    if (!roleConfig) return
-    
-    const reviewer: Omit<Reviewer, 'id' | 'joinedAt'> = {
+    if (!selectedSession || !newReviewer.name.trim() || !newReviewer.email.trim()) return;
+
+    const roleConfig = REVIEWER_ROLES.find((r) => r.id === newReviewer.role);
+    if (!roleConfig) return;
+
+    const reviewer: Omit<Reviewer, "id" | "joinedAt"> = {
       name: newReviewer.name,
       email: newReviewer.email,
       role: newReviewer.role,
-      status: 'pending',
-      permissions: roleConfig.permissions
-    }
-    
-    onInviteReviewer(selectedSession, reviewer)
-    
+      status: "pending",
+      permissions: roleConfig.permissions,
+    };
+
+    onInviteReviewer(selectedSession, reviewer);
+
     // Reset form
     setNewReviewer({
-      name: '',
-      email: '',
-      role: 'reviewer'
-    })
-    
-    setActiveTab('sessions')
-  }
+      name: "",
+      email: "",
+      role: "reviewer",
+    });
+
+    setActiveTab("sessions");
+  };
 
   const handleStartSession = (sessionId: string) => {
-    onUpdateSession(sessionId, { status: 'active' })
-  }
+    onUpdateSession(sessionId, { status: "active" });
+  };
 
   const handleCompleteSession = (sessionId: string) => {
-    onUpdateSession(sessionId, { status: 'completed' })
-  }
+    onUpdateSession(sessionId, { status: "completed" });
+  };
 
   const copyShareLink = (link: string) => {
-    navigator.clipboard.writeText(link)
+    navigator.clipboard.writeText(link);
     // You could add a toast notification here
-  }
+  };
 
   const getSessionProgress = (session: ReviewSession) => {
-    const totalReviewers = session.reviewers.length
-    const completedReviewers = session.reviewers.filter(r => 
-      r.status === 'approved' || r.status === 'rejected' || r.status === 'completed'
-    ).length
-    
-    return totalReviewers > 0 ? (completedReviewers / totalReviewers) * 100 : 0
-  }
+    const totalReviewers = session.reviewers.length;
+    const completedReviewers = session.reviewers.filter(
+      (r) => r.status === "approved" || r.status === "rejected" || r.status === "completed",
+    ).length;
+
+    return totalReviewers > 0 ? (completedReviewers / totalReviewers) * 100 : 0;
+  };
 
   const renderSessionCard = (session: ReviewSession) => {
-    const progress = getSessionProgress(session)
-    const approvedCount = session.reviewers.filter(r => r.status === 'approved').length
-    const rejectedCount = session.reviewers.filter(r => r.status === 'rejected').length
-    const pendingCount = session.reviewers.filter(r => r.status === 'pending').length
-    
+    const progress = getSessionProgress(session);
+    const approvedCount = session.reviewers.filter((r) => r.status === "approved").length;
+    const rejectedCount = session.reviewers.filter((r) => r.status === "rejected").length;
+    const pendingCount = session.reviewers.filter((r) => r.status === "pending").length;
+
     return (
       <div key={session.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
         <div className="flex items-start justify-between">
@@ -256,9 +256,7 @@ export default function SharedReview({
                 {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
               </span>
             </div>
-            {session.description && (
-              <p className="text-sm text-gray-600 mt-1">{session.description}</p>
-            )}
+            {session.description && <p className="text-sm text-gray-600 mt-1">{session.description}</p>}
             {session.deadline && (
               <div className="flex items-center text-xs text-gray-500 mt-1">
                 <CalendarIcon className="w-3 h-3 mr-1" />
@@ -266,9 +264,9 @@ export default function SharedReview({
               </div>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-1">
-            {session.status === 'draft' && (
+            {session.status === "draft" && (
               <button
                 onClick={() => handleStartSession(session.id)}
                 className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -276,7 +274,7 @@ export default function SharedReview({
                 Start Review
               </button>
             )}
-            {session.status === 'active' && (
+            {session.status === "active" && (
               <button
                 onClick={() => handleCompleteSession(session.id)}
                 className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
@@ -286,8 +284,8 @@ export default function SharedReview({
             )}
             <button
               onClick={() => {
-                setSelectedSession(session.id)
-                setActiveTab('invite')
+                setSelectedSession(session.id);
+                setActiveTab("invite");
               }}
               className="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
             >
@@ -295,7 +293,7 @@ export default function SharedReview({
             </button>
           </div>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-gray-600">
@@ -303,13 +301,10 @@ export default function SharedReview({
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-500 h-2 rounded-full transition-all"
-              style={{ width: `${progress}%` }}
-            />
+            <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
           </div>
         </div>
-        
+
         {/* Reviewers Summary */}
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center space-x-4">
@@ -336,7 +331,7 @@ export default function SharedReview({
               </div>
             )}
           </div>
-          
+
           {session.shareLink && (
             <button
               onClick={() => copyShareLink(session.shareLink!)}
@@ -348,7 +343,7 @@ export default function SharedReview({
             </button>
           )}
         </div>
-        
+
         {/* Reviewers List */}
         {session.reviewers.length > 0 && (
           <div className="space-y-1">
@@ -357,10 +352,7 @@ export default function SharedReview({
               {session.reviewers.map((reviewer) => (
                 <div key={reviewer.id} className="flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-2">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: STATUS_COLORS[reviewer.status] }}
-                    />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[reviewer.status] }} />
                     <span>{reviewer.name}</span>
                     <span className="text-gray-500">({reviewer.role})</span>
                   </div>
@@ -377,10 +369,10 @@ export default function SharedReview({
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
-  if (!isActive) return null
+  if (!isActive) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -391,10 +383,7 @@ export default function SharedReview({
             <ShareIcon className="w-5 h-5 mr-2" />
             Shared Review
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
@@ -402,53 +391,51 @@ export default function SharedReview({
         {/* Tabs */}
         <div className="flex border-b border-gray-200">
           {[
-            { id: 'sessions', name: 'Review Sessions', icon: ChatBubbleLeftRightIcon },
-            { id: 'create', name: 'Create Session', icon: DocumentDuplicateIcon },
-            { id: 'invite', name: 'Invite Reviewers', icon: EnvelopeIcon }
+            { id: "sessions", name: "Review Sessions", icon: ChatBubbleLeftRightIcon },
+            { id: "create", name: "Create Session", icon: DocumentDuplicateIcon },
+            { id: "invite", name: "Invite Reviewers", icon: EnvelopeIcon },
           ].map((tab) => {
-            const Icon = tab.icon
+            const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={cn(
-                  'flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                  "flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors",
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700",
                 )}
               >
                 <Icon className="w-4 h-4 mr-2" />
                 {tab.name}
               </button>
-            )
+            );
           })}
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          {activeTab === 'sessions' && (
+          {activeTab === "sessions" && (
             <div className="space-y-6">
               {/* Active Sessions */}
               {activeSessions.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 mb-3">Active Sessions ({activeSessions.length})</h3>
-                  <div className="space-y-3">
-                    {activeSessions.map(renderSessionCard)}
-                  </div>
+                  <div className="space-y-3">{activeSessions.map(renderSessionCard)}</div>
                 </div>
               )}
-              
+
               {/* Completed Sessions */}
               {completedSessions.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Completed Sessions ({completedSessions.length})</h3>
-                  <div className="space-y-3">
-                    {completedSessions.map(renderSessionCard)}
-                  </div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">
+                    Completed Sessions ({completedSessions.length})
+                  </h3>
+                  <div className="space-y-3">{completedSessions.map(renderSessionCard)}</div>
                 </div>
               )}
-              
+
               {sessions.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   <ChatBubbleLeftRightIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
@@ -459,10 +446,10 @@ export default function SharedReview({
             </div>
           )}
 
-          {activeTab === 'create' && (
+          {activeTab === "create" && (
             <div className="max-w-md mx-auto space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Create Review Session</h3>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Session Title</label>
                 <input
@@ -473,7 +460,7 @@ export default function SharedReview({
                   placeholder="Enter session title..."
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
                 <textarea
@@ -484,7 +471,7 @@ export default function SharedReview({
                   placeholder="Describe what needs to be reviewed..."
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Deadline (Optional)</label>
                 <input
@@ -494,10 +481,10 @@ export default function SharedReview({
                   className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-gray-700">Settings</h4>
-                
+
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -507,7 +494,7 @@ export default function SharedReview({
                   />
                   <span className="text-sm">Require all approvals</span>
                 </label>
-                
+
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -517,7 +504,7 @@ export default function SharedReview({
                   />
                   <span className="text-sm">Allow anonymous comments</span>
                 </label>
-                
+
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -527,7 +514,7 @@ export default function SharedReview({
                   />
                   <span className="text-sm">Send automatic reminders</span>
                 </label>
-                
+
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -538,7 +525,7 @@ export default function SharedReview({
                   <span className="text-sm">Track changes</span>
                 </label>
               </div>
-              
+
               <button
                 onClick={handleCreateSession}
                 disabled={!newSession.title.trim()}
@@ -549,24 +536,28 @@ export default function SharedReview({
             </div>
           )}
 
-          {activeTab === 'invite' && (
+          {activeTab === "invite" && (
             <div className="max-w-md mx-auto space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Invite Reviewers</h3>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Select Session</label>
                 <select
-                  value={selectedSession || ''}
+                  value={selectedSession || ""}
                   onChange={(e) => setSelectedSession(e.target.value || null)}
                   className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Choose a session...</option>
-                  {sessions.filter(s => s.status !== 'completed').map((session) => (
-                    <option key={session.id} value={session.id}>{session.title}</option>
-                  ))}
+                  {sessions
+                    .filter((s) => s.status !== "completed")
+                    .map((session) => (
+                      <option key={session.id} value={session.id}>
+                        {session.title}
+                      </option>
+                    ))}
                 </select>
               </div>
-              
+
               {selectedSession && (
                 <>
                   <div>
@@ -579,7 +570,7 @@ export default function SharedReview({
                       placeholder="Enter reviewer name..."
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                     <input
@@ -590,7 +581,7 @@ export default function SharedReview({
                       placeholder="Enter email address..."
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                     <select
@@ -605,7 +596,7 @@ export default function SharedReview({
                       ))}
                     </select>
                   </div>
-                  
+
                   <button
                     onClick={handleInviteReviewer}
                     disabled={!newReviewer.name.trim() || !newReviewer.email.trim()}
@@ -620,5 +611,5 @@ export default function SharedReview({
         </div>
       </Card>
     </div>
-  )
+  );
 }

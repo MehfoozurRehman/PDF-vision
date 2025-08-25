@@ -1,5 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { cn } from '@/lib/utils';
+import React, { useState, useRef, useCallback } from "react";
+import { cn } from "@/lib/utils";
 
 export interface SliderProps {
   value: number;
@@ -22,7 +22,7 @@ const Slider: React.FC<SliderProps> = ({
   disabled = false,
   label,
   showValue = false,
-  className
+  className,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -41,12 +41,12 @@ const Slider: React.FC<SliderProps> = ({
 
       onChange(clampedValue);
     },
-    [min, max, step, onChange, disabled]
+    [min, max, step, onChange, disabled],
   );
 
   const handleMouseDown = (event: React.MouseEvent) => {
     if (disabled) return;
-    
+
     setIsDragging(true);
     updateValue(event.clientX);
   };
@@ -57,7 +57,7 @@ const Slider: React.FC<SliderProps> = ({
         updateValue(event.clientX);
       }
     },
-    [isDragging, updateValue]
+    [isDragging, updateValue],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -66,13 +66,13 @@ const Slider: React.FC<SliderProps> = ({
 
   React.useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
@@ -80,20 +80,20 @@ const Slider: React.FC<SliderProps> = ({
     if (disabled) return;
 
     let newValue = value;
-    
+
     switch (event.key) {
-      case 'ArrowLeft':
-      case 'ArrowDown':
+      case "ArrowLeft":
+      case "ArrowDown":
         newValue = Math.max(min, value - step);
         break;
-      case 'ArrowRight':
-      case 'ArrowUp':
+      case "ArrowRight":
+      case "ArrowUp":
         newValue = Math.min(max, value + step);
         break;
-      case 'Home':
+      case "Home":
         newValue = min;
         break;
-      case 'End':
+      case "End":
         newValue = max;
         break;
       default:
@@ -105,33 +105,25 @@ const Slider: React.FC<SliderProps> = ({
   };
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       {(label || showValue) && (
         <div className="flex justify-between items-center mb-2">
           {label && (
-            <label className={cn(
-              'text-sm font-medium',
-              disabled ? 'text-neutral-400' : 'text-neutral-700'
-            )}>
+            <label className={cn("text-sm font-medium", disabled ? "text-neutral-400" : "text-neutral-700")}>
               {label}
             </label>
           )}
           {showValue && (
-            <span className={cn(
-              'text-sm',
-              disabled ? 'text-neutral-400' : 'text-neutral-500'
-            )}>
-              {value}
-            </span>
+            <span className={cn("text-sm", disabled ? "text-neutral-400" : "text-neutral-500")}>{value}</span>
           )}
         </div>
       )}
-      
+
       <div
         ref={sliderRef}
         className={cn(
-          'relative h-2 bg-neutral-200 rounded-full cursor-pointer',
-          disabled && 'cursor-not-allowed opacity-50'
+          "relative h-2 bg-neutral-200 rounded-full cursor-pointer",
+          disabled && "cursor-not-allowed opacity-50",
         )}
         onMouseDown={handleMouseDown}
         role="slider"
@@ -147,14 +139,14 @@ const Slider: React.FC<SliderProps> = ({
           className="absolute h-full bg-primary-600 rounded-full transition-all duration-150"
           style={{ width: `${percentage}%` }}
         />
-        
+
         {/* Thumb */}
         <div
           className={cn(
-            'absolute top-1/2 w-5 h-5 bg-white border-2 border-primary-600 rounded-full shadow-md transform -translate-y-1/2 transition-all duration-150',
-            'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-            isDragging ? 'scale-110' : 'hover:scale-105',
-            disabled && 'border-neutral-400'
+            "absolute top-1/2 w-5 h-5 bg-white border-2 border-primary-600 rounded-full shadow-md transform -translate-y-1/2 transition-all duration-150",
+            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
+            isDragging ? "scale-110" : "hover:scale-105",
+            disabled && "border-neutral-400",
           )}
           style={{ left: `calc(${percentage}% - 10px)` }}
         />

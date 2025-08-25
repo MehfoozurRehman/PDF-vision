@@ -1,183 +1,177 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useUI } from '@/store/ui-store'
-import { usePDF } from '@/store/pdf-store'
-import {
-  XMarkIcon,
-  DocumentIcon,
-  CalculatorIcon,
-  EyeIcon,
-  Cog6ToothIcon,
-} from '@heroicons/react/24/outline'
-import { useDropzone } from 'react-dropzone'
-import toast from 'react-hot-toast'
+import { useState } from "react";
+import { useUI } from "@/store/ui-store";
+import { usePDF } from "@/store/pdf-store";
+import { XMarkIcon, DocumentIcon, CalculatorIcon, EyeIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
+import { useDropzone } from "react-dropzone";
+import toast from "react-hot-toast";
 
 interface BatesSettings {
-  prefix: string
-  suffix: string
-  startNumber: number
-  digits: number
-  position: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
-  fontSize: number
-  fontColor: string
-  backgroundColor: string
-  opacity: number
-  margin: number
+  prefix: string;
+  suffix: string;
+  startNumber: number;
+  digits: number;
+  position: "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
+  fontSize: number;
+  fontColor: string;
+  backgroundColor: string;
+  opacity: number;
+  margin: number;
 }
 
 interface BatesFile {
-  id: string
-  name: string
-  path: string
-  pages: number
-  size: string
-  file: File
-  arrayBuffer?: ArrayBuffer
+  id: string;
+  name: string;
+  path: string;
+  pages: number;
+  size: string;
+  file: File;
+  arrayBuffer?: ArrayBuffer;
 }
 
 export default function BatesModal() {
-  const { state: uiState, dispatch: uiDispatch } = useUI()
-  const { dispatch: pdfDispatch } = usePDF()
-  const [files, setFiles] = useState<BatesFile[]>([])
+  const { state: uiState, dispatch: uiDispatch } = useUI();
+  const { dispatch: pdfDispatch } = usePDF();
+  const [files, setFiles] = useState<BatesFile[]>([]);
   const [settings, setSettings] = useState<BatesSettings>({
-    prefix: 'BATES',
-    suffix: '',
+    prefix: "BATES",
+    suffix: "",
     startNumber: 1,
     digits: 6,
-    position: 'bottom-right',
+    position: "bottom-right",
     fontSize: 10,
-    fontColor: '#000000',
-    backgroundColor: '#ffffff',
+    fontColor: "#000000",
+    backgroundColor: "#ffffff",
     opacity: 0.8,
-    margin: 20
-  })
-  const [showAdvanced, setShowAdvanced] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
+    margin: 20,
+  });
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  if (!uiState.modals.bates) return null
+  if (!uiState.modals.bates) return null;
 
   const closeModal = () => {
-    uiDispatch({ type: 'CLOSE_MODAL', payload: 'bates' })
-    setFiles([])
+    uiDispatch({ type: "CLOSE_MODAL", payload: "bates" });
+    setFiles([]);
     setSettings({
-      prefix: 'BATES',
-      suffix: '',
+      prefix: "BATES",
+      suffix: "",
       startNumber: 1,
       digits: 6,
-      position: 'bottom-right',
+      position: "bottom-right",
       fontSize: 10,
-      fontColor: '#000000',
-      backgroundColor: '#ffffff',
+      fontColor: "#000000",
+      backgroundColor: "#ffffff",
       opacity: 0.8,
-      margin: 20
-    })
-  }
+      margin: 20,
+    });
+  };
 
   const onDrop = async (acceptedFiles: File[]) => {
-    const pdfFiles = acceptedFiles.filter(file => file.type === 'application/pdf')
-    
+    const pdfFiles = acceptedFiles.filter((file) => file.type === "application/pdf");
+
     if (pdfFiles.length !== acceptedFiles.length) {
-      toast.error('Only PDF files are allowed')
+      toast.error("Only PDF files are allowed");
     }
 
     const newFiles: (BatesFile | null)[] = await Promise.all(
       pdfFiles.map(async (file) => {
         try {
-          const arrayBuffer = await file.arrayBuffer()
+          const arrayBuffer = await file.arrayBuffer();
           // TODO: Get actual page count from PDF
-          const pageCount = Math.floor(Math.random() * 50) + 10 // Placeholder
-          
+          const pageCount = Math.floor(Math.random() * 50) + 10; // Placeholder
+
           return {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
             name: file.name,
             path: file.name,
             pages: pageCount,
-            size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+            size: (file.size / 1024 / 1024).toFixed(2) + " MB",
             file: file,
-            arrayBuffer: arrayBuffer
-          }
+            arrayBuffer: arrayBuffer,
+          };
         } catch (error) {
-          toast.error(`Failed to load ${file.name}`)
-          return null
+          toast.error(`Failed to load ${file.name}`);
+          return null;
         }
-      })
-    )
+      }),
+    );
 
-    const validFiles = newFiles.filter((file): file is BatesFile => file !== null)
-    setFiles(prev => [...prev, ...validFiles])
-  }
+    const validFiles = newFiles.filter((file): file is BatesFile => file !== null);
+    setFiles((prev) => [...prev, ...validFiles]);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf']
+      "application/pdf": [".pdf"],
     },
-    multiple: true
-  })
+    multiple: true,
+  });
 
   const removeFile = (id: string) => {
-    setFiles(prev => prev.filter(file => file.id !== id))
-  }
+    setFiles((prev) => prev.filter((file) => file.id !== id));
+  };
 
-  const moveFile = (id: string, direction: 'up' | 'down') => {
-    setFiles(prev => {
-      const index = prev.findIndex(file => file.id === id)
-      if (index === -1) return prev
-      
-      const newIndex = direction === 'up' ? index - 1 : index + 1
-      if (newIndex < 0 || newIndex >= prev.length) return prev
-      
-      const newFiles = [...prev]
-      const [movedFile] = newFiles.splice(index, 1)
-      newFiles.splice(newIndex, 0, movedFile)
-      return newFiles
-    })
-  }
+  const moveFile = (id: string, direction: "up" | "down") => {
+    setFiles((prev) => {
+      const index = prev.findIndex((file) => file.id === id);
+      if (index === -1) return prev;
+
+      const newIndex = direction === "up" ? index - 1 : index + 1;
+      if (newIndex < 0 || newIndex >= prev.length) return prev;
+
+      const newFiles = [...prev];
+      const [movedFile] = newFiles.splice(index, 1);
+      newFiles.splice(newIndex, 0, movedFile);
+      return newFiles;
+    });
+  };
 
   const updateSetting = <K extends keyof BatesSettings>(key: K, value: BatesSettings[K]) => {
-    setSettings(prev => ({ ...prev, [key]: value }))
-  }
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
 
   const formatBatesNumber = (number: number) => {
-    const paddedNumber = number.toString().padStart(settings.digits, '0')
-    return `${settings.prefix}${paddedNumber}${settings.suffix}`
-  }
+    const paddedNumber = number.toString().padStart(settings.digits, "0");
+    return `${settings.prefix}${paddedNumber}${settings.suffix}`;
+  };
 
   const getTotalPages = () => {
-    return files.reduce((sum, file) => sum + file.pages, 0)
-  }
+    return files.reduce((sum, file) => sum + file.pages, 0);
+  };
 
   const getPreviewNumbers = () => {
-    const totalPages = getTotalPages()
-    const firstNumber = formatBatesNumber(settings.startNumber)
-    const lastNumber = formatBatesNumber(settings.startNumber + totalPages - 1)
-    return { firstNumber, lastNumber, totalPages }
-  }
+    const totalPages = getTotalPages();
+    const firstNumber = formatBatesNumber(settings.startNumber);
+    const lastNumber = formatBatesNumber(settings.startNumber + totalPages - 1);
+    return { firstNumber, lastNumber, totalPages };
+  };
 
   const handleApplyBates = async () => {
     if (files.length === 0) {
-      toast.error('Please select at least one PDF file')
-      return
+      toast.error("Please select at least one PDF file");
+      return;
     }
 
-    setIsProcessing(true)
-    
+    setIsProcessing(true);
+
     try {
       // TODO: Implement actual Bates numbering logic
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate processing
-      
-      toast.success('Bates numbering applied successfully!')
-      closeModal()
-    } catch (error) {
-      console.error('Error applying Bates numbering:', error)
-      toast.error('Failed to apply Bates numbering')
-    } finally {
-      setIsProcessing(false)
-    }
-  }
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate processing
 
-  const { firstNumber, lastNumber, totalPages } = getPreviewNumbers()
+      toast.success("Bates numbering applied successfully!");
+      closeModal();
+    } catch (error) {
+      console.error("Error applying Bates numbering:", error);
+      toast.error("Failed to apply Bates numbering");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const { firstNumber, lastNumber, totalPages } = getPreviewNumbers();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -188,10 +182,7 @@ export default function BatesModal() {
             <CalculatorIcon className="w-6 h-6 text-blue-600" />
             <h2 className="text-xl font-semibold text-gray-900">Bates Numbering</h2>
           </div>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
@@ -201,33 +192,27 @@ export default function BatesModal() {
           {/* Left Panel - Files */}
           <div className="w-1/2 border-r border-gray-200 p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Documents</h3>
-            
+
             {/* Drop Zone */}
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors mb-4 ${isDragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400'
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors mb-4 ${
+                isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"
               }`}
             >
               <input {...getInputProps()} />
               <DocumentIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-900 mb-1">
-                {isDragActive ? 'Drop PDF files here' : 'Add PDF files'}
+                {isDragActive ? "Drop PDF files here" : "Add PDF files"}
               </p>
-              <p className="text-xs text-gray-600">
-                Drag & drop or click to browse
-              </p>
+              <p className="text-xs text-gray-600">Drag & drop or click to browse</p>
             </div>
 
             {/* Files List */}
             {files.length > 0 && (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {files.map((file, index) => (
-                  <div
-                    key={file.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
+                  <div key={file.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3 flex-1">
                       <div className="w-8 h-8 bg-red-100 rounded flex items-center justify-center">
                         <DocumentIcon className="w-5 h-5 text-red-600" />
@@ -241,23 +226,20 @@ export default function BatesModal() {
                     </div>
                     <div className="flex items-center space-x-1">
                       <button
-                        onClick={() => moveFile(file.id, 'up')}
+                        onClick={() => moveFile(file.id, "up")}
                         disabled={index === 0}
                         className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                       >
                         ↑
                       </button>
                       <button
-                        onClick={() => moveFile(file.id, 'down')}
+                        onClick={() => moveFile(file.id, "down")}
                         disabled={index === files.length - 1}
                         className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                       >
                         ↓
                       </button>
-                      <button
-                        onClick={() => removeFile(file.id)}
-                        className="p-1 text-red-400 hover:text-red-600"
-                      >
+                      <button onClick={() => removeFile(file.id)} className="p-1 text-red-400 hover:text-red-600">
                         ×
                       </button>
                     </div>
@@ -287,7 +269,7 @@ export default function BatesModal() {
                 className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700"
               >
                 <Cog6ToothIcon className="w-4 h-4" />
-                <span>{showAdvanced ? 'Basic' : 'Advanced'}</span>
+                <span>{showAdvanced ? "Basic" : "Advanced"}</span>
               </button>
             </div>
 
@@ -295,25 +277,21 @@ export default function BatesModal() {
               {/* Basic Settings */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Prefix
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Prefix</label>
                   <input
                     type="text"
                     value={settings.prefix}
-                    onChange={(e) => updateSetting('prefix', e.target.value)}
+                    onChange={(e) => updateSetting("prefix", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="BATES"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Suffix
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Suffix</label>
                   <input
                     type="text"
                     value={settings.suffix}
-                    onChange={(e) => updateSetting('suffix', e.target.value)}
+                    onChange={(e) => updateSetting("suffix", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Optional"
                   />
@@ -322,24 +300,20 @@ export default function BatesModal() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Number
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Number</label>
                   <input
                     type="number"
                     value={settings.startNumber}
-                    onChange={(e) => updateSetting('startNumber', parseInt(e.target.value) || 1)}
+                    onChange={(e) => updateSetting("startNumber", parseInt(e.target.value) || 1)}
                     min="1"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Digits
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Digits</label>
                   <select
                     value={settings.digits}
-                    onChange={(e) => updateSetting('digits', parseInt(e.target.value))}
+                    onChange={(e) => updateSetting("digits", parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value={3}>3 digits</option>
@@ -353,12 +327,10 @@ export default function BatesModal() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Position
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
                 <select
                   value={settings.position}
-                  onChange={(e) => updateSetting('position', e.target.value as BatesSettings['position'])}
+                  onChange={(e) => updateSetting("position", e.target.value as BatesSettings["position"])}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="top-left">Top Left</option>
@@ -375,29 +347,25 @@ export default function BatesModal() {
                 <>
                   <div className="border-t border-gray-200 pt-4">
                     <h4 className="text-sm font-medium text-gray-900 mb-3">Appearance</h4>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Font Size
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Font Size</label>
                         <input
                           type="number"
                           value={settings.fontSize}
-                          onChange={(e) => updateSetting('fontSize', parseInt(e.target.value) || 10)}
+                          onChange={(e) => updateSetting("fontSize", parseInt(e.target.value) || 10)}
                           min="6"
                           max="24"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Margin
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Margin</label>
                         <input
                           type="number"
                           value={settings.margin}
-                          onChange={(e) => updateSetting('margin', parseInt(e.target.value) || 20)}
+                          onChange={(e) => updateSetting("margin", parseInt(e.target.value) || 20)}
                           min="0"
                           max="100"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -407,24 +375,20 @@ export default function BatesModal() {
 
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Text Color
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Text Color</label>
                         <input
                           type="color"
                           value={settings.fontColor}
-                          onChange={(e) => updateSetting('fontColor', e.target.value)}
+                          onChange={(e) => updateSetting("fontColor", e.target.value)}
                           className="w-full h-10 border border-gray-300 rounded-lg"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Background
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Background</label>
                         <input
                           type="color"
                           value={settings.backgroundColor}
-                          onChange={(e) => updateSetting('backgroundColor', e.target.value)}
+                          onChange={(e) => updateSetting("backgroundColor", e.target.value)}
                           className="w-full h-10 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -440,7 +404,7 @@ export default function BatesModal() {
                         max="1"
                         step="0.1"
                         value={settings.opacity}
-                        onChange={(e) => updateSetting('opacity', parseFloat(e.target.value))}
+                        onChange={(e) => updateSetting("opacity", parseFloat(e.target.value))}
                         className="w-full"
                       />
                     </div>
@@ -458,7 +422,7 @@ export default function BatesModal() {
                       fontSize: `${settings.fontSize}px`,
                       color: settings.fontColor,
                       backgroundColor: settings.backgroundColor,
-                      opacity: settings.opacity
+                      opacity: settings.opacity,
                     }}
                   >
                     {formatBatesNumber(settings.startNumber)}
@@ -500,12 +464,12 @@ export default function BatesModal() {
                 disabled={files.length === 0 || isProcessing}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? 'Processing...' : 'Apply Bates Numbering'}
+                {isProcessing ? "Processing..." : "Apply Bates Numbering"}
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { usePDF } from '@/store/pdf-store'
+import { useState } from "react";
+import { usePDF } from "@/store/pdf-store";
 import {
   BookmarkIcon,
   ChevronRightIcon,
@@ -9,125 +9,119 @@ import {
   PlusIcon,
   TrashIcon,
   PencilIcon,
-} from '@heroicons/react/24/outline'
+} from "@heroicons/react/24/outline";
 
 interface Bookmark {
-  id: string
-  title: string
-  pageNumber: number
-  level: number
-  children?: Bookmark[]
-  isExpanded?: boolean
+  id: string;
+  title: string;
+  pageNumber: number;
+  level: number;
+  children?: Bookmark[];
+  isExpanded?: boolean;
 }
 
 export default function BookmarksPanel() {
-  const { state: pdfState, dispatch: pdfDispatch } = usePDF()
+  const { state: pdfState, dispatch: pdfDispatch } = usePDF();
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([
     {
-      id: '1',
-      title: 'Introduction',
+      id: "1",
+      title: "Introduction",
       pageNumber: 1,
       level: 0,
       isExpanded: true,
       children: [
         {
-          id: '2',
-          title: 'Overview',
+          id: "2",
+          title: "Overview",
           pageNumber: 2,
           level: 1,
         },
         {
-          id: '3',
-          title: 'Getting Started',
+          id: "3",
+          title: "Getting Started",
           pageNumber: 3,
           level: 1,
         },
       ],
     },
     {
-      id: '4',
-      title: 'Chapter 1',
+      id: "4",
+      title: "Chapter 1",
       pageNumber: 5,
       level: 0,
       isExpanded: false,
       children: [
         {
-          id: '5',
-          title: 'Section 1.1',
+          id: "5",
+          title: "Section 1.1",
           pageNumber: 6,
           level: 1,
         },
         {
-          id: '6',
-          title: 'Section 1.2',
+          id: "6",
+          title: "Section 1.2",
           pageNumber: 8,
           level: 1,
         },
       ],
     },
-  ])
-  const [editingBookmark, setEditingBookmark] = useState<string | null>(null)
-  const [newBookmarkTitle, setNewBookmarkTitle] = useState('')
+  ]);
+  const [editingBookmark, setEditingBookmark] = useState<string | null>(null);
+  const [newBookmarkTitle, setNewBookmarkTitle] = useState("");
 
-  const currentDocument = pdfState.activeDocument
+  const currentDocument = pdfState.activeDocument;
 
   const handleBookmarkClick = (pageNumber: number) => {
     if (currentDocument) {
       pdfDispatch({
-        type: 'SET_CURRENT_PAGE',
-        payload: pageNumber
-      })
+        type: "SET_CURRENT_PAGE",
+        payload: pageNumber,
+      });
     }
-  }
+  };
 
   const toggleBookmark = (bookmarkId: string) => {
-    setBookmarks(prev => 
-      prev.map(bookmark => 
-        bookmark.id === bookmarkId
-          ? { ...bookmark, isExpanded: !bookmark.isExpanded }
-          : bookmark
-      )
-    )
-  }
+    setBookmarks((prev) =>
+      prev.map((bookmark) =>
+        bookmark.id === bookmarkId ? { ...bookmark, isExpanded: !bookmark.isExpanded } : bookmark,
+      ),
+    );
+  };
 
   const addBookmark = () => {
-    if (!currentDocument || !newBookmarkTitle.trim()) return
+    if (!currentDocument || !newBookmarkTitle.trim()) return;
 
     const newBookmark: Bookmark = {
       id: Date.now().toString(),
       title: newBookmarkTitle.trim(),
       pageNumber: currentDocument.currentPage,
       level: 0,
-    }
+    };
 
-    setBookmarks(prev => [...prev, newBookmark])
-    setNewBookmarkTitle('')
-  }
+    setBookmarks((prev) => [...prev, newBookmark]);
+    setNewBookmarkTitle("");
+  };
 
   const deleteBookmark = (bookmarkId: string) => {
-    setBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
-  }
+    setBookmarks((prev) => prev.filter((bookmark) => bookmark.id !== bookmarkId));
+  };
 
   const updateBookmarkTitle = (bookmarkId: string, newTitle: string) => {
-    setBookmarks(prev => 
-      prev.map(bookmark => 
-        bookmark.id === bookmarkId
-          ? { ...bookmark, title: newTitle }
-          : bookmark
-      )
-    )
-    setEditingBookmark(null)
-  }
+    setBookmarks((prev) =>
+      prev.map((bookmark) => (bookmark.id === bookmarkId ? { ...bookmark, title: newTitle } : bookmark)),
+    );
+    setEditingBookmark(null);
+  };
 
   const renderBookmark = (bookmark: Bookmark) => {
-    const isEditing = editingBookmark === bookmark.id
-    const hasChildren = bookmark.children && bookmark.children.length > 0
+    const isEditing = editingBookmark === bookmark.id;
+    const hasChildren = bookmark.children && bookmark.children.length > 0;
 
     return (
       <div key={bookmark.id} className="select-none">
-        <div 
+        <div
           className={`group flex items-center p-2 rounded hover:bg-gray-100 cursor-pointer ${
-            currentDocument?.currentPage === bookmark.pageNumber ? 'bg-adobe-blue/10' : ''
+            currentDocument?.currentPage === bookmark.pageNumber ? "bg-adobe-blue/10" : ""
           }`}
           style={{ paddingLeft: `${8 + bookmark.level * 16}px` }}
         >
@@ -135,8 +129,8 @@ export default function BookmarksPanel() {
           {hasChildren ? (
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                toggleBookmark(bookmark.id)
+                e.stopPropagation();
+                toggleBookmark(bookmark.id);
               }}
               className="p-1 hover:bg-gray-200 rounded mr-1"
             >
@@ -154,10 +148,7 @@ export default function BookmarksPanel() {
           <BookmarkIcon className="w-4 h-4 text-gray-600 mr-2 flex-shrink-0" />
 
           {/* Bookmark Title */}
-          <div 
-            className="flex-1 min-w-0"
-            onClick={() => handleBookmarkClick(bookmark.pageNumber)}
-          >
+          <div className="flex-1 min-w-0" onClick={() => handleBookmarkClick(bookmark.pageNumber)}>
             {isEditing ? (
               <input
                 type="text"
@@ -166,22 +157,18 @@ export default function BookmarksPanel() {
                 autoFocus
                 onBlur={(e) => updateBookmarkTitle(bookmark.id, e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    updateBookmarkTitle(bookmark.id, e.currentTarget.value)
-                  } else if (e.key === 'Escape') {
-                    setEditingBookmark(null)
+                  if (e.key === "Enter") {
+                    updateBookmarkTitle(bookmark.id, e.currentTarget.value);
+                  } else if (e.key === "Escape") {
+                    setEditingBookmark(null);
                   }
                 }}
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-900 truncate">
-                  {bookmark.title}
-                </span>
-                <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
-                  {bookmark.pageNumber}
-                </span>
+                <span className="text-sm text-gray-900 truncate">{bookmark.title}</span>
+                <span className="text-xs text-gray-500 ml-2 flex-shrink-0">{bookmark.pageNumber}</span>
               </div>
             )}
           </div>
@@ -190,8 +177,8 @@ export default function BookmarksPanel() {
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-2">
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                setEditingBookmark(bookmark.id)
+                e.stopPropagation();
+                setEditingBookmark(bookmark.id);
               }}
               className="p-1 text-gray-400 hover:text-gray-600 rounded"
               title="Edit bookmark"
@@ -200,8 +187,8 @@ export default function BookmarksPanel() {
             </button>
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                deleteBookmark(bookmark.id)
+                e.stopPropagation();
+                deleteBookmark(bookmark.id);
               }}
               className="p-1 text-gray-400 hover:text-red-600 rounded"
               title="Delete bookmark"
@@ -212,14 +199,10 @@ export default function BookmarksPanel() {
         </div>
 
         {/* Children */}
-        {hasChildren && bookmark.isExpanded && (
-          <div>
-            {bookmark.children!.map(child => renderBookmark(child))}
-          </div>
-        )}
+        {hasChildren && bookmark.isExpanded && <div>{bookmark.children!.map((child) => renderBookmark(child))}</div>}
       </div>
-    )
-  }
+    );
+  };
 
   if (!currentDocument) {
     return (
@@ -227,7 +210,7 @@ export default function BookmarksPanel() {
         <BookmarkIcon className="w-8 h-8 mx-auto mb-2 text-gray-400" />
         <p>No document open</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -235,7 +218,7 @@ export default function BookmarksPanel() {
       <div className="p-3 border-b border-gray-200">
         <h3 className="text-sm font-medium text-gray-900">Bookmarks</h3>
         <p className="text-xs text-gray-500 mt-1">
-          {bookmarks.length} bookmark{bookmarks.length !== 1 ? 's' : ''}
+          {bookmarks.length} bookmark{bookmarks.length !== 1 ? "s" : ""}
         </p>
       </div>
 
@@ -249,8 +232,8 @@ export default function BookmarksPanel() {
             onChange={(e) => setNewBookmarkTitle(e.target.value)}
             className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                addBookmark()
+              if (e.key === "Enter") {
+                addBookmark();
               }
             }}
           />
@@ -274,11 +257,9 @@ export default function BookmarksPanel() {
             <p className="text-xs mt-1">Add bookmarks to quickly navigate</p>
           </div>
         ) : (
-          <div className="p-2">
-            {bookmarks.map(bookmark => renderBookmark(bookmark))}
-          </div>
+          <div className="p-2">{bookmarks.map((bookmark) => renderBookmark(bookmark))}</div>
         )}
       </div>
     </div>
-  )
+  );
 }

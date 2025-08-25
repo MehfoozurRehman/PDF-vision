@@ -1,19 +1,17 @@
 import {
-  StirlingPDFResponse,
-  PDFInfo,
-  SplitOptions,
-  MergeOptions,
   CompressOptions,
-  WatermarkOptions,
-  SecurityOptions,
   ConversionOptions,
-  OCROptions,
-  RotateOptions,
   ExtractOptions,
-  StampOptions,
+  MergeOptions,
+  OCROptions,
+  PDFInfo,
   RequestConfig,
-  ProgressCallback
-} from './types';
+  RotateOptions,
+  SecurityOptions,
+  SplitOptions,
+  StampOptions,
+  WatermarkOptions,
+} from "./types";
 
 // Custom error class
 class APIError extends Error {
@@ -22,7 +20,7 @@ class APIError extends Error {
 
   constructor({ message, status, code }: { message: string; status: number; code?: string }) {
     super(message);
-    this.name = 'APIError';
+    this.name = "APIError";
     this.status = status;
     this.code = code;
   }
@@ -32,26 +30,23 @@ export class StirlingPDFClient {
   private baseURL: string;
   private defaultTimeout: number = 30000;
 
-  constructor(baseURL: string = 'http://localhost:8081') {
-    this.baseURL = baseURL.replace(/\/$/, ''); // Remove trailing slash
+  constructor(baseURL: string = "http://localhost:8081") {
+    this.baseURL = baseURL.replace(/\/$/, ""); // Remove trailing slash
   }
 
-  private async makeRequest<T>(
-    endpoint: string,
-    options: RequestInit & { config?: RequestConfig } = {}
-  ): Promise<T> {
+  private async makeRequest<T>(endpoint: string, options: RequestInit & { config?: RequestConfig } = {}): Promise<T> {
     const { config, ...fetchOptions } = options;
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), config?.timeout || this.defaultTimeout);
-    
+
     try {
       const response = await fetch(url, {
         ...fetchOptions,
         signal: config?.signal || controller.signal,
         headers: {
-          'Accept': 'application/json',
+          Accept: "application/json",
           ...fetchOptions.headers,
         },
       });
@@ -67,11 +62,11 @@ export class StirlingPDFClient {
       }
 
       // Handle different response types
-      const contentType = response.headers.get('content-type');
-      if (contentType?.includes('application/json')) {
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
         return await response.json();
       } else {
-        return await response.blob() as T;
+        return (await response.blob()) as T;
       }
     } catch (error) {
       clearTimeout(timeoutId);
@@ -79,7 +74,7 @@ export class StirlingPDFClient {
         throw error;
       }
       throw new APIError({
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        message: error instanceof Error ? error.message : "Unknown error occurred",
         status: 0,
       });
     }
@@ -87,15 +82,15 @@ export class StirlingPDFClient {
 
   private createFormData(files: File[], additionalData?: Record<string, any>): FormData {
     const formData = new FormData();
-    
+
     files.forEach((file, index) => {
-      formData.append(files.length === 1 ? 'fileInput' : `fileInput${index}`, file);
+      formData.append(files.length === 1 ? "fileInput" : `fileInput${index}`, file);
     });
 
     if (additionalData) {
       Object.entries(additionalData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+          formData.append(key, typeof value === "object" ? JSON.stringify(value) : String(value));
         }
       });
     }
@@ -105,18 +100,18 @@ export class StirlingPDFClient {
 
   // System Information
   async getSystemInfo(): Promise<any> {
-    return this.makeRequest('/api/v1/info');
+    return this.makeRequest("/api/v1/info");
   }
 
   async getSystemStatus(): Promise<any> {
-    return this.makeRequest('/api/v1/info/status');
+    return this.makeRequest("/api/v1/info/status");
   }
 
   // PDF Information
   async getPDFInfo(file: File, config?: RequestConfig): Promise<PDFInfo> {
     const formData = this.createFormData([file]);
-    return this.makeRequest('/api/v1/info/get-info-on-pdf', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/info/get-info-on-pdf", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -125,8 +120,8 @@ export class StirlingPDFClient {
   // Merge Operations
   async mergePDFs(files: File[], options?: MergeOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData(files, options);
-    return this.makeRequest('/api/v1/general/merge-pdfs', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/general/merge-pdfs", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -135,16 +130,16 @@ export class StirlingPDFClient {
   // Split Operations
   async splitPDF(file: File, options: SplitOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], options);
-    let endpoint = '/api/v1/general/split-pages';
-    
-    if (options.splitType === 'size') {
-      endpoint = '/api/v1/general/split-by-size-or-count';
-    } else if (options.splitType === 'chapters') {
-      endpoint = '/api/v1/general/split-pdf-by-chapters';
+    let endpoint = "/api/v1/general/split-pages";
+
+    if (options.splitType === "size") {
+      endpoint = "/api/v1/general/split-by-size-or-count";
+    } else if (options.splitType === "chapters") {
+      endpoint = "/api/v1/general/split-pdf-by-chapters";
     }
 
     return this.makeRequest(endpoint, {
-      method: 'POST',
+      method: "POST",
       body: formData,
       config,
     });
@@ -153,8 +148,8 @@ export class StirlingPDFClient {
   // Compression
   async compressPDF(file: File, options: CompressOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], options);
-    return this.makeRequest('/api/v1/misc/compress-pdf', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/misc/compress-pdf", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -163,8 +158,8 @@ export class StirlingPDFClient {
   // Security Operations
   async addPassword(file: File, options: SecurityOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], options);
-    return this.makeRequest('/api/v1/security/add-password', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/security/add-password", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -172,8 +167,8 @@ export class StirlingPDFClient {
 
   async removePassword(file: File, password: string, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], { password });
-    return this.makeRequest('/api/v1/security/remove-password', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/security/remove-password", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -181,8 +176,8 @@ export class StirlingPDFClient {
 
   async changePermissions(file: File, options: SecurityOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], options);
-    return this.makeRequest('/api/v1/security/change-permissions', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/security/change-permissions", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -191,22 +186,22 @@ export class StirlingPDFClient {
   // Watermark Operations
   async addWatermark(file: File, options: WatermarkOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file]);
-    
+
     if (options.text) {
-      formData.append('watermarkText', options.text);
+      formData.append("watermarkText", options.text);
     }
     if (options.image) {
-      formData.append('watermarkImage', options.image);
+      formData.append("watermarkImage", options.image);
     }
-    
+
     Object.entries(options).forEach(([key, value]) => {
-      if (key !== 'text' && key !== 'image' && value !== undefined) {
+      if (key !== "text" && key !== "image" && value !== undefined) {
         formData.append(key, String(value));
       }
     });
 
-    return this.makeRequest('/api/v1/security/add-watermark', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/security/add-watermark", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -214,8 +209,8 @@ export class StirlingPDFClient {
 
   async removeWatermark(file: File, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file]);
-    return this.makeRequest('/api/v1/security/remove-watermark', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/security/remove-watermark", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -224,8 +219,8 @@ export class StirlingPDFClient {
   // Conversion Operations
   async convertPDFToImages(file: File, options: ConversionOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], options);
-    return this.makeRequest('/api/v1/convert/pdf-to-img', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/convert/pdf-to-img", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -233,8 +228,8 @@ export class StirlingPDFClient {
 
   async convertImagesToPDF(files: File[], config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData(files);
-    return this.makeRequest('/api/v1/convert/img-to-pdf', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/convert/img-to-pdf", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -242,8 +237,8 @@ export class StirlingPDFClient {
 
   async convertPDFToWord(file: File, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file]);
-    return this.makeRequest('/api/v1/convert/pdf-to-word', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/convert/pdf-to-word", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -251,8 +246,8 @@ export class StirlingPDFClient {
 
   async convertPDFToHTML(file: File, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file]);
-    return this.makeRequest('/api/v1/convert/pdf-to-html', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/convert/pdf-to-html", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -262,10 +257,10 @@ export class StirlingPDFClient {
   async performOCR(file: File, options: OCROptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], {
       ...options,
-      languages: options.languages.join(','),
+      languages: options.languages.join(","),
     });
-    return this.makeRequest('/api/v1/misc/ocr-pdf', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/misc/ocr-pdf", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -275,10 +270,10 @@ export class StirlingPDFClient {
   async rotatePDF(file: File, options: RotateOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], {
       ...options,
-      pageNumbers: options.pageNumbers?.join(','),
+      pageNumbers: options.pageNumbers?.join(","),
     });
-    return this.makeRequest('/api/v1/general/rotate-pdf', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/general/rotate-pdf", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -287,10 +282,10 @@ export class StirlingPDFClient {
   async extractPages(file: File, options: ExtractOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], {
       ...options,
-      pageNumbers: options.pageNumbers.join(','),
+      pageNumbers: options.pageNumbers.join(","),
     });
-    return this.makeRequest('/api/v1/general/extract-pages', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/general/extract-pages", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -298,10 +293,10 @@ export class StirlingPDFClient {
 
   async removePages(file: File, pageNumbers: number[], config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file], {
-      pageNumbers: pageNumbers.join(','),
+      pageNumbers: pageNumbers.join(","),
     });
-    return this.makeRequest('/api/v1/general/remove-pages', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/general/remove-pages", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -310,22 +305,22 @@ export class StirlingPDFClient {
   // Stamp Operations
   async addStamp(file: File, options: StampOptions, config?: RequestConfig): Promise<Blob> {
     const formData = this.createFormData([file]);
-    
+
     if (options.text) {
-      formData.append('stampText', options.text);
+      formData.append("stampText", options.text);
     }
     if (options.image) {
-      formData.append('stampImage', options.image);
+      formData.append("stampImage", options.image);
     }
-    
+
     Object.entries(options).forEach(([key, value]) => {
-      if (key !== 'text' && key !== 'image' && value !== undefined) {
+      if (key !== "text" && key !== "image" && value !== undefined) {
         formData.append(key, String(value));
       }
     });
 
-    return this.makeRequest('/api/v1/misc/stamp', {
-      method: 'POST',
+    return this.makeRequest("/api/v1/misc/stamp", {
+      method: "POST",
       body: formData,
       config,
     });
@@ -334,7 +329,7 @@ export class StirlingPDFClient {
   // Utility Methods
   async downloadFile(blob: Blob, filename: string): Promise<void> {
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);

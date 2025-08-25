@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState, useRef } from 'react'
-import { Card } from '@/components/ui'
+import React, { useState, useRef } from "react";
+import { Card } from "@/components/ui";
 import {
   PaintBrushIcon,
   XMarkIcon,
@@ -10,73 +10,73 @@ import {
   StrikethroughIcon,
   TrashIcon,
   EyeIcon,
-  EyeSlashIcon
-} from '@heroicons/react/24/outline'
-import { cn } from '@/lib/utils'
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 
 interface TextMarkup {
-  id: string
-  type: 'highlight' | 'underline' | 'strikethrough'
-  text: string
-  position: { x: number; y: number; width: number; height: number }
-  color: string
-  opacity: number
-  pageNumber: number
-  createdAt: Date
-  author: string
-  isVisible: boolean
+  id: string;
+  type: "highlight" | "underline" | "strikethrough";
+  text: string;
+  position: { x: number; y: number; width: number; height: number };
+  color: string;
+  opacity: number;
+  pageNumber: number;
+  createdAt: Date;
+  author: string;
+  isVisible: boolean;
 }
 
 interface TextMarkupProps {
-  pageNumber: number
-  onAddMarkup: (markup: Omit<TextMarkup, 'id' | 'createdAt'>) => void
-  onUpdateMarkup: (id: string, updates: Partial<TextMarkup>) => void
-  onDeleteMarkup: (id: string) => void
-  markups: TextMarkup[]
-  isActive: boolean
-  onClose: () => void
+  pageNumber: number;
+  onAddMarkup: (markup: Omit<TextMarkup, "id" | "createdAt">) => void;
+  onUpdateMarkup: (id: string, updates: Partial<TextMarkup>) => void;
+  onDeleteMarkup: (id: string) => void;
+  markups: TextMarkup[];
+  isActive: boolean;
+  onClose: () => void;
 }
 
 const MARKUP_TYPES = [
   {
-    id: 'highlight' as const,
-    name: 'Highlight',
+    id: "highlight" as const,
+    name: "Highlight",
     icon: SwatchIcon,
-    description: 'Highlight important text'
+    description: "Highlight important text",
   },
   {
-    id: 'underline' as const,
-    name: 'Underline',
+    id: "underline" as const,
+    name: "Underline",
     icon: UnderlineIcon,
-    description: 'Underline text for emphasis'
+    description: "Underline text for emphasis",
   },
   {
-    id: 'strikethrough' as const,
-    name: 'Strikethrough',
+    id: "strikethrough" as const,
+    name: "Strikethrough",
     icon: StrikethroughIcon,
-    description: 'Strike through text to mark as deleted'
-  }
-]
+    description: "Strike through text to mark as deleted",
+  },
+];
 
 const HIGHLIGHT_COLORS = [
-  { name: 'Yellow', value: '#fbbf24', opacity: 0.3 },
-  { name: 'Green', value: '#10b981', opacity: 0.3 },
-  { name: 'Blue', value: '#3b82f6', opacity: 0.3 },
-  { name: 'Pink', value: '#ec4899', opacity: 0.3 },
-  { name: 'Purple', value: '#8b5cf6', opacity: 0.3 },
-  { name: 'Orange', value: '#f59e0b', opacity: 0.3 },
-  { name: 'Red', value: '#ef4444', opacity: 0.3 },
-  { name: 'Gray', value: '#6b7280', opacity: 0.3 }
-]
+  { name: "Yellow", value: "#fbbf24", opacity: 0.3 },
+  { name: "Green", value: "#10b981", opacity: 0.3 },
+  { name: "Blue", value: "#3b82f6", opacity: 0.3 },
+  { name: "Pink", value: "#ec4899", opacity: 0.3 },
+  { name: "Purple", value: "#8b5cf6", opacity: 0.3 },
+  { name: "Orange", value: "#f59e0b", opacity: 0.3 },
+  { name: "Red", value: "#ef4444", opacity: 0.3 },
+  { name: "Gray", value: "#6b7280", opacity: 0.3 },
+];
 
 const UNDERLINE_COLORS = [
-  { name: 'Red', value: '#ef4444', opacity: 1 },
-  { name: 'Blue', value: '#3b82f6', opacity: 1 },
-  { name: 'Green', value: '#10b981', opacity: 1 },
-  { name: 'Orange', value: '#f59e0b', opacity: 1 },
-  { name: 'Purple', value: '#8b5cf6', opacity: 1 },
-  { name: 'Black', value: '#000000', opacity: 1 }
-]
+  { name: "Red", value: "#ef4444", opacity: 1 },
+  { name: "Blue", value: "#3b82f6", opacity: 1 },
+  { name: "Green", value: "#10b981", opacity: 1 },
+  { name: "Orange", value: "#f59e0b", opacity: 1 },
+  { name: "Purple", value: "#8b5cf6", opacity: 1 },
+  { name: "Black", value: "#000000", opacity: 1 },
+];
 
 export default function TextMarkup({
   pageNumber,
@@ -85,74 +85,77 @@ export default function TextMarkup({
   onDeleteMarkup,
   markups,
   isActive,
-  onClose
+  onClose,
 }: TextMarkupProps) {
-  const [selectedType, setSelectedType] = useState<'highlight' | 'underline' | 'strikethrough'>('highlight')
-  const [selectedColor, setSelectedColor] = useState('#fbbf24')
-  const [opacity, setOpacity] = useState(0.3)
-  const [isSelecting, setIsSelecting] = useState(false)
-  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null)
-  const [currentSelection, setCurrentSelection] = useState<{ x: number; y: number; width: number; height: number } | null>(null)
-  const [filter, setFilter] = useState<'all' | 'highlight' | 'underline' | 'strikethrough'>('all')
-  
-  const canvasRef = useRef<HTMLDivElement>(null)
+  const [selectedType, setSelectedType] = useState<"highlight" | "underline" | "strikethrough">("highlight");
+  const [selectedColor, setSelectedColor] = useState("#fbbf24");
+  const [opacity, setOpacity] = useState(0.3);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
+  const [currentSelection, setCurrentSelection] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const [filter, setFilter] = useState<"all" | "highlight" | "underline" | "strikethrough">("all");
 
-  const pageMarkups = markups.filter(m => m.pageNumber === pageNumber)
-  const filteredMarkups = pageMarkups.filter(markup => 
-    filter === 'all' || markup.type === filter
-  )
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  const pageMarkups = markups.filter((m) => m.pageNumber === pageNumber);
+  const filteredMarkups = pageMarkups.filter((markup) => filter === "all" || markup.type === filter);
 
   const getColorsForType = (type: string) => {
     switch (type) {
-      case 'highlight':
-        return HIGHLIGHT_COLORS
-      case 'underline':
-      case 'strikethrough':
-        return UNDERLINE_COLORS
+      case "highlight":
+        return HIGHLIGHT_COLORS;
+      case "underline":
+      case "strikethrough":
+        return UNDERLINE_COLORS;
       default:
-        return HIGHLIGHT_COLORS
+        return HIGHLIGHT_COLORS;
     }
-  }
+  };
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isActive) return
-    
-    const rect = event.currentTarget.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    
-    setIsSelecting(true)
-    setSelectionStart({ x, y })
-    setCurrentSelection({ x, y, width: 0, height: 0 })
-  }
+    if (!isActive) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    setIsSelecting(true);
+    setSelectionStart({ x, y });
+    setCurrentSelection({ x, y, width: 0, height: 0 });
+  };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isSelecting || !selectionStart) return
-    
-    const rect = event.currentTarget.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    
-    const width = x - selectionStart.x
-    const height = y - selectionStart.y
-    
+    if (!isSelecting || !selectionStart) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const width = x - selectionStart.x;
+    const height = y - selectionStart.y;
+
     setCurrentSelection({
       x: width < 0 ? x : selectionStart.x,
       y: height < 0 ? y : selectionStart.y,
       width: Math.abs(width),
-      height: Math.abs(height)
-    })
-  }
+      height: Math.abs(height),
+    });
+  };
 
   const handleMouseUp = () => {
-    if (!isSelecting || !currentSelection || !selectionStart) return
-    
-    setIsSelecting(false)
-    
+    if (!isSelecting || !currentSelection || !selectionStart) return;
+
+    setIsSelecting(false);
+
     // Only create markup if selection is large enough
     if (currentSelection.width > 10 && currentSelection.height > 5) {
-      const selectedText = `Selected text (${Math.round(currentSelection.width)}x${Math.round(currentSelection.height)})`
-      
+      const selectedText = `Selected text (${Math.round(currentSelection.width)}x${Math.round(currentSelection.height)})`;
+
       onAddMarkup({
         type: selectedType,
         text: selectedText,
@@ -160,63 +163,63 @@ export default function TextMarkup({
         color: selectedColor,
         opacity,
         pageNumber,
-        author: 'Current User',
-        isVisible: true
-      })
+        author: "Current User",
+        isVisible: true,
+      });
     }
-    
-    setCurrentSelection(null)
-    setSelectionStart(null)
-  }
+
+    setCurrentSelection(null);
+    setSelectionStart(null);
+  };
 
   const handleToggleVisibility = (markupId: string) => {
-    const markup = markups.find(m => m.id === markupId)
+    const markup = markups.find((m) => m.id === markupId);
     if (markup) {
-      onUpdateMarkup(markupId, { isVisible: !markup.isVisible })
+      onUpdateMarkup(markupId, { isVisible: !markup.isVisible });
     }
-  }
+  };
 
   const handleColorChange = (color: string, newOpacity: number) => {
-    setSelectedColor(color)
-    setOpacity(newOpacity)
-  }
+    setSelectedColor(color);
+    setOpacity(newOpacity);
+  };
 
   const renderMarkup = (markup: TextMarkup) => {
-    if (!markup.isVisible) return null
-    
+    if (!markup.isVisible) return null;
+
     const style: React.CSSProperties = {
-      position: 'absolute',
+      position: "absolute",
       left: markup.position.x,
       top: markup.position.y,
       width: markup.position.width,
       height: markup.position.height,
-      pointerEvents: 'none'
-    }
+      pointerEvents: "none",
+    };
 
     switch (markup.type) {
-      case 'highlight':
+      case "highlight":
         return (
           <div
             key={markup.id}
             style={{
               ...style,
               backgroundColor: markup.color,
-              opacity: markup.opacity
+              opacity: markup.opacity,
             }}
           />
-        )
-      case 'underline':
+        );
+      case "underline":
         return (
           <div
             key={markup.id}
             style={{
               ...style,
               borderBottom: `2px solid ${markup.color}`,
-              opacity: markup.opacity
+              opacity: markup.opacity,
             }}
           />
-        )
-      case 'strikethrough':
+        );
+      case "strikethrough":
         return (
           <div
             key={markup.id}
@@ -224,16 +227,16 @@ export default function TextMarkup({
               ...style,
               borderTop: `2px solid ${markup.color}`,
               top: markup.position.y + markup.position.height / 2,
-              opacity: markup.opacity
+              opacity: markup.opacity,
             }}
           />
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  if (!isActive) return null
+  if (!isActive) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -244,10 +247,7 @@ export default function TextMarkup({
             <PaintBrushIcon className="w-5 h-5 mr-2" />
             Text Markup
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
@@ -260,16 +260,16 @@ export default function TextMarkup({
               <h3 className="text-sm font-medium text-gray-700 mb-2">Markup Type</h3>
               <div className="space-y-2">
                 {MARKUP_TYPES.map((type) => {
-                  const Icon = type.icon
+                  const Icon = type.icon;
                   return (
                     <button
                       key={type.id}
                       onClick={() => setSelectedType(type.id)}
                       className={cn(
-                        'w-full p-3 rounded-lg border text-left transition-colors',
+                        "w-full p-3 rounded-lg border text-left transition-colors",
                         selectedType === type.id
-                          ? 'bg-blue-50 border-blue-200 text-blue-700'
-                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                          ? "bg-blue-50 border-blue-200 text-blue-700"
+                          : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50",
                       )}
                     >
                       <div className="flex items-center">
@@ -280,7 +280,7 @@ export default function TextMarkup({
                         </div>
                       </div>
                     </button>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -294,10 +294,10 @@ export default function TextMarkup({
                     key={color.value}
                     onClick={() => handleColorChange(color.value, color.opacity)}
                     className={cn(
-                      'w-full h-10 rounded border-2 transition-all relative',
+                      "w-full h-10 rounded border-2 transition-all relative",
                       selectedColor === color.value
-                        ? 'border-gray-400 scale-105'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? "border-gray-400 scale-105"
+                        : "border-gray-200 hover:border-gray-300",
                     )}
                     style={{ backgroundColor: color.value }}
                     title={color.name}
@@ -310,7 +310,7 @@ export default function TextMarkup({
                   </button>
                 ))}
               </div>
-              
+
               {/* Custom Color */}
               <div className="mt-2">
                 <input
@@ -323,11 +323,9 @@ export default function TextMarkup({
             </div>
 
             {/* Opacity */}
-            {selectedType === 'highlight' && (
+            {selectedType === "highlight" && (
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">
-                  Opacity: {Math.round(opacity * 100)}%
-                </h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Opacity: {Math.round(opacity * 100)}%</h3>
                 <input
                   type="range"
                   min="0.1"
@@ -355,26 +353,19 @@ export default function TextMarkup({
                   <option value="strikethrough">Strikethrough</option>
                 </select>
               </div>
-              
+
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {filteredMarkups.map((markup) => (
-                  <div
-                    key={markup.id}
-                    className="p-2 bg-gray-50 rounded border text-sm"
-                  >
+                  <div key={markup.id} className="p-2 bg-gray-50 rounded border text-sm">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium capitalize">{markup.type}</span>
                       <div className="flex items-center space-x-1">
                         <button
                           onClick={() => handleToggleVisibility(markup.id)}
                           className="p-1 hover:bg-gray-200 rounded"
-                          title={markup.isVisible ? 'Hide' : 'Show'}
+                          title={markup.isVisible ? "Hide" : "Show"}
                         >
-                          {markup.isVisible ? (
-                            <EyeIcon className="w-3 h-3" />
-                          ) : (
-                            <EyeSlashIcon className="w-3 h-3" />
-                          )}
+                          {markup.isVisible ? <EyeIcon className="w-3 h-3" /> : <EyeSlashIcon className="w-3 h-3" />}
                         </button>
                         <button
                           onClick={() => onDeleteMarkup(markup.id)}
@@ -409,7 +400,7 @@ export default function TextMarkup({
               >
                 {/* Existing markups */}
                 {filteredMarkups.map(renderMarkup)}
-                
+
                 {/* Current selection */}
                 {currentSelection && isSelecting && (
                   <div
@@ -418,12 +409,12 @@ export default function TextMarkup({
                       left: currentSelection.x,
                       top: currentSelection.y,
                       width: currentSelection.width,
-                      height: currentSelection.height
+                      height: currentSelection.height,
                     }}
                   />
                 )}
               </div>
-              
+
               {/* Instructions */}
               <div className="absolute top-4 left-4 bg-white bg-opacity-90 rounded-lg p-3 text-sm text-gray-600">
                 <div className="font-medium mb-1">Text Markup Instructions:</div>
@@ -439,5 +430,5 @@ export default function TextMarkup({
         </div>
       </Card>
     </div>
-  )
+  );
 }

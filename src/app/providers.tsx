@@ -1,22 +1,20 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { PDFProvider } from '@/store/pdf-store'
-import { UIProvider } from '@/store/ui-store'
-import { ThemeProvider } from './theme-provider'
+import { PDFProvider } from "@/store/pdf-store";
+import React from "react";
+import { ThemeProvider } from "./theme-provider";
+import { UIProvider } from "@/store/ui-store";
 
 interface ProvidersProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
   return (
     <UIProvider>
       <ThemeProvider>
-        <PDFProvider>
-          {children}
-        </PDFProvider>
+        <PDFProvider>{children}</PDFProvider>
       </ThemeProvider>
     </UIProvider>
-  )
+  );
 }

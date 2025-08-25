@@ -66,16 +66,13 @@ export default function CreateModal() {
     setCreateOptions((prev) => ({ ...prev, files: [] }));
   };
 
-  const updateOption = <K extends keyof CreateOptions>(
-    key: K,
-    value: CreateOptions[K]
-  ) => {
+  const updateOption = <K extends keyof CreateOptions>(key: K, value: CreateOptions[K]) => {
     setCreateOptions((prev) => ({ ...prev, [key]: value }));
   };
 
   const updateScanSetting = <K extends keyof CreateOptions["scanSettings"]>(
     key: K,
-    value: CreateOptions["scanSettings"][K]
+    value: CreateOptions["scanSettings"][K],
   ) => {
     setCreateOptions((prev) => ({
       ...prev,
@@ -85,7 +82,7 @@ export default function CreateModal() {
 
   const updateBlankSetting = <K extends keyof CreateOptions["blankSettings"]>(
     key: K,
-    value: CreateOptions["blankSettings"][K]
+    value: CreateOptions["blankSettings"][K],
   ) => {
     setCreateOptions((prev) => ({
       ...prev,
@@ -130,15 +127,11 @@ export default function CreateModal() {
       "image/*": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"],
       "text/plain": [".txt"],
       "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
       "application/vnd.ms-excel": [".xls"],
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
-        ".xlsx",
-      ],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
       "application/vnd.ms-powerpoint": [".ppt"],
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        [".pptx"],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
     },
     multiple: true,
   });
@@ -173,10 +166,7 @@ export default function CreateModal() {
               // Merge existing PDF
               const arrayBuffer = await file.arrayBuffer();
               const existingPdf = await PDFDocument.load(arrayBuffer);
-              const pages = await pdfDoc.copyPages(
-                existingPdf,
-                existingPdf.getPageIndices()
-              );
+              const pages = await pdfDoc.copyPages(existingPdf, existingPdf.getPageIndices());
               pages.forEach((page) => pdfDoc.addPage(page));
             } else if (file.type.startsWith("image/")) {
               // Convert image to PDF page
@@ -242,15 +232,12 @@ export default function CreateModal() {
             color: rgb(0.5, 0.5, 0.5),
           });
 
-          page.drawText(
-            `Resolution: ${createOptions.scanSettings.resolution} DPI`,
-            {
-              x: 50,
-              y: height - 100,
-              size: 12,
-              color: rgb(0.5, 0.5, 0.5),
-            }
-          );
+          page.drawText(`Resolution: ${createOptions.scanSettings.resolution} DPI`, {
+            x: 50,
+            y: height - 100,
+            size: 12,
+            color: rgb(0.5, 0.5, 0.5),
+          });
           break;
 
         case "web":
@@ -262,10 +249,7 @@ export default function CreateModal() {
           // Simulate web-to-PDF conversion
           await new Promise((resolve) => setTimeout(resolve, 3000));
           pdfDoc = await PDFDocument.create();
-          fileName = `Web_${createOptions.webUrl.replace(
-            /[^a-zA-Z0-9]/g,
-            "_"
-          )}.pdf`;
+          fileName = `Web_${createOptions.webUrl.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
 
           const webPage = pdfDoc.addPage();
           const { width: webWidth, height: webHeight } = webPage.getSize();
@@ -284,23 +268,19 @@ export default function CreateModal() {
             color: rgb(0.5, 0.5, 0.5),
           });
 
-          webPage.drawText(
-            "In a real implementation, this would capture the actual web page.",
-            {
-              x: 50,
-              y: webHeight - 100,
-              size: 12,
-              color: rgb(0.5, 0.5, 0.5),
-            }
-          );
+          webPage.drawText("In a real implementation, this would capture the actual web page.", {
+            x: 50,
+            y: webHeight - 100,
+            size: 12,
+            color: rgb(0.5, 0.5, 0.5),
+          });
           break;
 
         case "blank":
           pdfDoc = await PDFDocument.create();
           fileName = "Blank Document.pdf";
 
-          const { pageSize, orientation, pageCount } =
-            createOptions.blankSettings;
+          const { pageSize, orientation, pageCount } = createOptions.blankSettings;
 
           // Define page dimensions
           let pageWidth: number, pageHeight: number;
@@ -420,10 +400,7 @@ export default function CreateModal() {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Create PDF</h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
@@ -432,9 +409,7 @@ export default function CreateModal() {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Method Selection */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Creation Method
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Creation Method</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 {
@@ -460,9 +435,7 @@ export default function CreateModal() {
               ].map(({ method, label, desc }) => (
                 <button
                   key={method}
-                  onClick={() =>
-                    updateOption("method", method as CreateOptions["method"])
-                  }
+                  onClick={() => updateOption("method", method as CreateOptions["method"])}
                   className={`p-4 border rounded-lg text-left transition-colors ${
                     createOptions.method === method
                       ? "border-adobe-blue bg-adobe-blue/5 text-adobe-blue"
@@ -488,9 +461,7 @@ export default function CreateModal() {
               <div
                 {...getRootProps()}
                 className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                  isDragActive
-                    ? "border-adobe-blue bg-adobe-blue/5"
-                    : "border-gray-300 hover:border-gray-400"
+                  isDragActive ? "border-adobe-blue bg-adobe-blue/5" : "border-gray-300 hover:border-gray-400"
                 }`}
               >
                 <input {...getInputProps()} />
@@ -500,32 +471,22 @@ export default function CreateModal() {
                 </p>
                 <p className="text-gray-600 mb-4">or click to browse files</p>
                 <p className="text-sm text-gray-500">
-                  Supports: PDF, Images (JPG, PNG, GIF, BMP, TIFF), Text, Word,
-                  Excel, PowerPoint
+                  Supports: PDF, Images (JPG, PNG, GIF, BMP, TIFF), Text, Word, Excel, PowerPoint
                 </p>
               </div>
 
               {/* Selected Files */}
               {createOptions.files.length > 0 && (
                 <div>
-                  <h5 className="font-medium text-gray-900 mb-3">
-                    Selected Files ({createOptions.files.length})
-                  </h5>
+                  <h5 className="font-medium text-gray-900 mb-3">Selected Files ({createOptions.files.length})</h5>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {createOptions.files.map((file, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           {getFileIcon(file)}
                           <div>
-                            <p className="font-medium text-gray-900">
-                              {file.name}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {(file.size / 1024 / 1024).toFixed(2)} MB
-                            </p>
+                            <p className="font-medium text-gray-900">{file.name}</p>
+                            <p className="text-sm text-gray-600">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                           </div>
                         </div>
                         <button
@@ -548,14 +509,10 @@ export default function CreateModal() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quality
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Quality</label>
                   <select
                     value={createOptions.scanSettings.quality}
-                    onChange={(e) =>
-                      updateScanSetting("quality", e.target.value as any)
-                    }
+                    onChange={(e) => updateScanSetting("quality", e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adobe-blue"
                   >
                     <option value="draft">Draft</option>
@@ -566,14 +523,10 @@ export default function CreateModal() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Color Mode
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Color Mode</label>
                   <select
                     value={createOptions.scanSettings.colorMode}
-                    onChange={(e) =>
-                      updateScanSetting("colorMode", e.target.value as any)
-                    }
+                    onChange={(e) => updateScanSetting("colorMode", e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adobe-blue"
                   >
                     <option value="color">Color</option>
@@ -583,17 +536,10 @@ export default function CreateModal() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Resolution (DPI)
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Resolution (DPI)</label>
                   <select
                     value={createOptions.scanSettings.resolution}
-                    onChange={(e) =>
-                      updateScanSetting(
-                        "resolution",
-                        parseInt(e.target.value) as any
-                      )
-                    }
+                    onChange={(e) => updateScanSetting("resolution", parseInt(e.target.value) as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adobe-blue"
                   >
                     <option value={150}>150 DPI</option>
@@ -609,36 +555,27 @@ export default function CreateModal() {
                   <input
                     type="checkbox"
                     checked={createOptions.scanSettings.autoDetectPages}
-                    onChange={(e) =>
-                      updateScanSetting("autoDetectPages", e.target.checked)
-                    }
+                    onChange={(e) => updateScanSetting("autoDetectPages", e.target.checked)}
                     className="rounded border-gray-300 text-adobe-blue focus:ring-adobe-blue"
                   />
-                  <span className="ml-2 text-sm text-gray-700">
-                    Auto-detect pages
-                  </span>
+                  <span className="ml-2 text-sm text-gray-700">Auto-detect pages</span>
                 </label>
 
                 <label className="flex items-center">
                   <input
                     type="checkbox"
                     checked={createOptions.scanSettings.enhanceText}
-                    onChange={(e) =>
-                      updateScanSetting("enhanceText", e.target.checked)
-                    }
+                    onChange={(e) => updateScanSetting("enhanceText", e.target.checked)}
                     className="rounded border-gray-300 text-adobe-blue focus:ring-adobe-blue"
                   />
-                  <span className="ml-2 text-sm text-gray-700">
-                    Enhance text readability
-                  </span>
+                  <span className="ml-2 text-sm text-gray-700">Enhance text readability</span>
                 </label>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> This is a simulation. In a real
-                  implementation, this would connect to scanner hardware or
-                  camera.
+                  <strong>Note:</strong> This is a simulation. In a real implementation, this would connect to scanner
+                  hardware or camera.
                 </p>
               </div>
             </div>
@@ -649,9 +586,7 @@ export default function CreateModal() {
               <h4 className="font-medium text-gray-900">Web Page URL</h4>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Enter URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Enter URL</label>
                 <input
                   type="url"
                   value={createOptions.webUrl}
@@ -663,9 +598,8 @@ export default function CreateModal() {
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> This is a simulation. In a real
-                  implementation, this would capture the actual web page
-                  content.
+                  <strong>Note:</strong> This is a simulation. In a real implementation, this would capture the actual
+                  web page content.
                 </p>
               </div>
             </div>
@@ -677,14 +611,10 @@ export default function CreateModal() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Page Size
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Page Size</label>
                   <select
                     value={createOptions.blankSettings.pageSize}
-                    onChange={(e) =>
-                      updateBlankSetting("pageSize", e.target.value as any)
-                    }
+                    onChange={(e) => updateBlankSetting("pageSize", e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adobe-blue"
                   >
                     <option value="letter">Letter (8.5" × 11")</option>
@@ -695,14 +625,10 @@ export default function CreateModal() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Orientation
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Orientation</label>
                   <select
                     value={createOptions.blankSettings.orientation}
-                    onChange={(e) =>
-                      updateBlankSetting("orientation", e.target.value as any)
-                    }
+                    onChange={(e) => updateBlankSetting("orientation", e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adobe-blue"
                   >
                     <option value="portrait">Portrait</option>
@@ -711,20 +637,13 @@ export default function CreateModal() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Pages
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Number of Pages</label>
                   <input
                     type="number"
                     min="1"
                     max="100"
                     value={createOptions.blankSettings.pageCount}
-                    onChange={(e) =>
-                      updateBlankSetting(
-                        "pageCount",
-                        parseInt(e.target.value) || 1
-                      )
-                    }
+                    onChange={(e) => updateBlankSetting("pageCount", parseInt(e.target.value) || 1)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adobe-blue"
                   />
                 </div>
@@ -746,8 +665,7 @@ export default function CreateModal() {
             onClick={handleCreate}
             disabled={
               isCreating ||
-              (createOptions.method === "files" &&
-                createOptions.files.length === 0) ||
+              (createOptions.method === "files" && createOptions.files.length === 0) ||
               (createOptions.method === "web" && !createOptions.webUrl.trim())
             }
             className="px-6 py-2 bg-adobe-blue text-white rounded-md hover:bg-adobe-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"

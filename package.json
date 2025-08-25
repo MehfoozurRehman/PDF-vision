@@ -14,7 +14,8 @@
     "electron": "electron .",
     "pack": "electron-builder --dir",
     "pack:win": "electron-builder --win",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "format": "npx prettier . --write"
   },
   "keywords": [
     "pdf",

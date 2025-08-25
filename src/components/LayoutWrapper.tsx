@@ -1,20 +1,16 @@
-'use client'
+"use client";
 
-import { useTranslation } from '@/lib/useTranslation'
-import { useEffect } from 'react'
+import { useEffect } from "react";
+import { useTranslation } from "@/lib/useTranslation";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
-  const { language, isRTL } = useTranslation()
+  const { language, isRTL } = useTranslation();
 
   useEffect(() => {
     // Update document direction and language
-    document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
-    document.documentElement.lang = language
-  }, [language, isRTL])
+    document.documentElement.dir = isRTL ? "rtl" : "ltr";
+    document.documentElement.lang = language;
+  }, [language, isRTL]);
 
-  return (
-    <div className={`h-full flex flex-col ${isRTL ? 'rtl' : 'ltr'}`}>
-      {children}
-    </div>
-  )
+  return <div className={`h-full flex flex-col ${isRTL ? "rtl" : "ltr"}`}>{children}</div>;
 }

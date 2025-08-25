@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { Card, Badge } from '@/components/ui'
+import React, { useState, useEffect } from "react";
+import { Card, Badge } from "@/components/ui";
 import {
   DocumentDuplicateIcon,
   ClockIcon,
@@ -30,111 +30,113 @@ import {
   PencilIcon,
   ChatBubbleLeftRightIcon,
   StarIcon,
-  BookmarkIcon
-} from '@heroicons/react/24/outline'
-import { cn } from '@/lib/utils'
+  BookmarkIcon,
+} from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 
 interface DocumentVersion {
-  id: string
-  versionNumber: string
-  title: string
-  description: string
-  createdBy: string
-  createdAt: Date
-  fileSize: number
-  fileUrl: string
-  thumbnailUrl?: string
-  status: 'draft' | 'review' | 'approved' | 'archived' | 'deprecated'
-  tags: string[]
-  parentVersion?: string
-  branchName?: string
-  isMajorVersion: boolean
-  changesSummary: string
-  approvedBy?: string
-  approvedAt?: Date
-  downloadCount: number
-  viewCount: number
-  isLocked: boolean
-  lockedBy?: string
-  lockedAt?: Date
-  comments: VersionComment[]
+  id: string;
+  versionNumber: string;
+  title: string;
+  description: string;
+  createdBy: string;
+  createdAt: Date;
+  fileSize: number;
+  fileUrl: string;
+  thumbnailUrl?: string;
+  status: "draft" | "review" | "approved" | "archived" | "deprecated";
+  tags: string[];
+  parentVersion?: string;
+  branchName?: string;
+  isMajorVersion: boolean;
+  changesSummary: string;
+  approvedBy?: string;
+  approvedAt?: Date;
+  downloadCount: number;
+  viewCount: number;
+  isLocked: boolean;
+  lockedBy?: string;
+  lockedAt?: Date;
+  comments: VersionComment[];
   metadata: {
-    pageCount: number
-    wordCount?: number
-    lastModified: Date
-    checksum: string
-    format: string
-    compression?: string
-  }
+    pageCount: number;
+    wordCount?: number;
+    lastModified: Date;
+    checksum: string;
+    format: string;
+    compression?: string;
+  };
 }
 
 interface VersionComment {
-  id: string
-  content: string
-  author: string
-  createdAt: Date
-  type: 'general' | 'approval' | 'rejection' | 'suggestion'
-  isResolved: boolean
-  resolvedBy?: string
-  resolvedAt?: Date
+  id: string;
+  content: string;
+  author: string;
+  createdAt: Date;
+  type: "general" | "approval" | "rejection" | "suggestion";
+  isResolved: boolean;
+  resolvedBy?: string;
+  resolvedAt?: Date;
 }
 
 interface VersionBranch {
-  id: string
-  name: string
-  description: string
-  createdBy: string
-  createdAt: Date
-  baseVersion: string
-  isActive: boolean
-  versionsCount: number
-  lastActivity: Date
-  mergeStatus?: 'pending' | 'approved' | 'rejected' | 'merged'
-  mergeTarget?: string
+  id: string;
+  name: string;
+  description: string;
+  createdBy: string;
+  createdAt: Date;
+  baseVersion: string;
+  isActive: boolean;
+  versionsCount: number;
+  lastActivity: Date;
+  mergeStatus?: "pending" | "approved" | "rejected" | "merged";
+  mergeTarget?: string;
 }
 
 interface VersionControlProps {
-  documentId: string
-  versions: DocumentVersion[]
-  branches: VersionBranch[]
-  currentVersion: string
-  onCreateVersion: (version: Omit<DocumentVersion, 'id' | 'createdAt' | 'downloadCount' | 'viewCount' | 'comments'>) => void
-  onUpdateVersion: (id: string, updates: Partial<DocumentVersion>) => void
-  onDeleteVersion: (id: string) => void
-  onRestoreVersion: (id: string) => void
-  onCompareVersions: (version1: string, version2: string) => void
-  onDownloadVersion: (id: string) => void
-  onLockVersion: (id: string) => void
-  onUnlockVersion: (id: string) => void
-  onCreateBranch: (branch: Omit<VersionBranch, 'id' | 'createdAt' | 'versionsCount' | 'lastActivity'>) => void
-  onMergeBranch: (branchId: string, targetBranch: string) => void
-  onAddComment: (versionId: string, comment: Omit<VersionComment, 'id' | 'createdAt'>) => void
-  currentUser: { id: string; name: string; email: string }
-  isActive: boolean
-  onClose: () => void
+  documentId: string;
+  versions: DocumentVersion[];
+  branches: VersionBranch[];
+  currentVersion: string;
+  onCreateVersion: (
+    version: Omit<DocumentVersion, "id" | "createdAt" | "downloadCount" | "viewCount" | "comments">,
+  ) => void;
+  onUpdateVersion: (id: string, updates: Partial<DocumentVersion>) => void;
+  onDeleteVersion: (id: string) => void;
+  onRestoreVersion: (id: string) => void;
+  onCompareVersions: (version1: string, version2: string) => void;
+  onDownloadVersion: (id: string) => void;
+  onLockVersion: (id: string) => void;
+  onUnlockVersion: (id: string) => void;
+  onCreateBranch: (branch: Omit<VersionBranch, "id" | "createdAt" | "versionsCount" | "lastActivity">) => void;
+  onMergeBranch: (branchId: string, targetBranch: string) => void;
+  onAddComment: (versionId: string, comment: Omit<VersionComment, "id" | "createdAt">) => void;
+  currentUser: { id: string; name: string; email: string };
+  isActive: boolean;
+  onClose: () => void;
 }
 
 const VERSION_STATUS_COLORS = {
-  draft: 'bg-gray-100 text-gray-800',
-  review: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  archived: 'bg-blue-100 text-blue-800',
-  deprecated: 'bg-red-100 text-red-800'
-}
+  draft: "bg-gray-100 text-gray-800",
+  review: "bg-yellow-100 text-yellow-800",
+  approved: "bg-green-100 text-green-800",
+  archived: "bg-blue-100 text-blue-800",
+  deprecated: "bg-red-100 text-red-800",
+};
 
 const COMMENT_TYPE_COLORS = {
-  general: 'bg-blue-100 text-blue-800',
-  approval: 'bg-green-100 text-green-800',
-  rejection: 'bg-red-100 text-red-800',
-  suggestion: 'bg-purple-100 text-purple-800'
-}
+  general: "bg-blue-100 text-blue-800",
+  approval: "bg-green-100 text-green-800",
+  rejection: "bg-red-100 text-red-800",
+  suggestion: "bg-purple-100 text-purple-800",
+};
 
 const MERGE_STATUS_COLORS = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
-  merged: 'bg-blue-100 text-blue-800'
-}
+  pending: "bg-yellow-100 text-yellow-800",
+  approved: "bg-green-100 text-green-800",
+  rejected: "bg-red-100 text-red-800",
+  merged: "bg-blue-100 text-blue-800",
+};
 
 export default function VersionControl({
   documentId,
@@ -154,76 +156,80 @@ export default function VersionControl({
   onAddComment,
   currentUser,
   isActive,
-  onClose
+  onClose,
 }: VersionControlProps) {
-  const [activeTab, setActiveTab] = useState<'versions' | 'branches' | 'compare' | 'create'>('versions')
-  const [selectedVersions, setSelectedVersions] = useState<string[]>([])
-  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set())
-  const [expandedBranches, setExpandedBranches] = useState<Set<string>>(new Set())
-  const [viewMode, setViewMode] = useState<'list' | 'tree' | 'timeline'>('list')
-  const [filterStatus, setFilterStatus] = useState<string>('all')
-  const [sortBy, setSortBy] = useState<'date' | 'version' | 'author'>('date')
-  const [searchTerm, setSearchTerm] = useState('')
-  
+  const [activeTab, setActiveTab] = useState<"versions" | "branches" | "compare" | "create">("versions");
+  const [selectedVersions, setSelectedVersions] = useState<string[]>([]);
+  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set());
+  const [expandedBranches, setExpandedBranches] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"list" | "tree" | "timeline">("list");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"date" | "version" | "author">("date");
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Create version form
   const [newVersion, setNewVersion] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     isMajorVersion: false,
-    branchName: 'main',
+    branchName: "main",
     tags: [] as string[],
-    changesSummary: ''
-  })
-  
+    changesSummary: "",
+  });
+
   // Create branch form
   const [newBranch, setNewBranch] = useState({
-    name: '',
-    description: '',
-    baseVersion: currentVersion
-  })
-  
+    name: "",
+    description: "",
+    baseVersion: currentVersion,
+  });
+
   // Comment form
   const [newComment, setNewComment] = useState({
-    versionId: '',
-    content: '',
-    type: 'general' as const
-  })
-  
-  const [showCommentForm, setShowCommentForm] = useState<string | null>(null)
-  const [newTag, setNewTag] = useState('')
+    versionId: "",
+    content: "",
+    type: "general" as const,
+  });
+
+  const [showCommentForm, setShowCommentForm] = useState<string | null>(null);
+  const [newTag, setNewTag] = useState("");
 
   // Filter and sort versions
   const filteredVersions = versions
-    .filter(version => {
-      if (filterStatus !== 'all' && version.status !== filterStatus) return false
-      if (searchTerm && !version.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !version.description.toLowerCase().includes(searchTerm.toLowerCase())) return false
-      return true
+    .filter((version) => {
+      if (filterStatus !== "all" && version.status !== filterStatus) return false;
+      if (
+        searchTerm &&
+        !version.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !version.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+        return false;
+      return true;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'date':
-          return b.createdAt.getTime() - a.createdAt.getTime()
-        case 'version':
-          return b.versionNumber.localeCompare(a.versionNumber, undefined, { numeric: true })
-        case 'author':
-          return a.createdBy.localeCompare(b.createdBy)
+        case "date":
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        case "version":
+          return b.versionNumber.localeCompare(a.versionNumber, undefined, { numeric: true });
+        case "author":
+          return a.createdBy.localeCompare(b.createdBy);
         default:
-          return 0
+          return 0;
       }
-    })
+    });
 
   const handleCreateVersion = () => {
-    if (!newVersion.title.trim()) return
-    
-    const version: Omit<DocumentVersion, 'id' | 'createdAt' | 'downloadCount' | 'viewCount' | 'comments'> = {
+    if (!newVersion.title.trim()) return;
+
+    const version: Omit<DocumentVersion, "id" | "createdAt" | "downloadCount" | "viewCount" | "comments"> = {
       versionNumber: generateVersionNumber(),
       title: newVersion.title,
       description: newVersion.description,
       createdBy: currentUser.id,
       fileSize: 0, // Will be set when file is uploaded
-      fileUrl: '', // Will be set when file is uploaded
-      status: 'draft',
+      fileUrl: "", // Will be set when file is uploaded
+      status: "draft",
       tags: newVersion.tags,
       branchName: newVersion.branchName,
       isMajorVersion: newVersion.isMajorVersion,
@@ -232,134 +238,134 @@ export default function VersionControl({
       metadata: {
         pageCount: 0,
         lastModified: new Date(),
-        checksum: '',
-        format: 'pdf'
-      }
-    }
-    
-    onCreateVersion(version)
-    
+        checksum: "",
+        format: "pdf",
+      },
+    };
+
+    onCreateVersion(version);
+
     // Reset form
     setNewVersion({
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       isMajorVersion: false,
-      branchName: 'main',
+      branchName: "main",
       tags: [],
-      changesSummary: ''
-    })
-    
-    setActiveTab('versions')
-  }
+      changesSummary: "",
+    });
+
+    setActiveTab("versions");
+  };
 
   const handleCreateBranch = () => {
-    if (!newBranch.name.trim()) return
-    
-    const branch: Omit<VersionBranch, 'id' | 'createdAt' | 'versionsCount' | 'lastActivity'> = {
+    if (!newBranch.name.trim()) return;
+
+    const branch: Omit<VersionBranch, "id" | "createdAt" | "versionsCount" | "lastActivity"> = {
       name: newBranch.name,
       description: newBranch.description,
       createdBy: currentUser.id,
       baseVersion: newBranch.baseVersion,
-      isActive: true
-    }
-    
-    onCreateBranch(branch)
-    
+      isActive: true,
+    };
+
+    onCreateBranch(branch);
+
     // Reset form
     setNewBranch({
-      name: '',
-      description: '',
-      baseVersion: currentVersion
-    })
-  }
+      name: "",
+      description: "",
+      baseVersion: currentVersion,
+    });
+  };
 
   const handleAddComment = (versionId: string) => {
-    if (!newComment.content.trim()) return
-    
-    const comment: Omit<VersionComment, 'id' | 'createdAt'> = {
+    if (!newComment.content.trim()) return;
+
+    const comment: Omit<VersionComment, "id" | "createdAt"> = {
       content: newComment.content,
       author: currentUser.id,
       type: newComment.type,
-      isResolved: false
-    }
-    
-    onAddComment(versionId, comment)
-    
-    setNewComment({ versionId: '', content: '', type: 'general' })
-    setShowCommentForm(null)
-  }
+      isResolved: false,
+    };
+
+    onAddComment(versionId, comment);
+
+    setNewComment({ versionId: "", content: "", type: "general" });
+    setShowCommentForm(null);
+  };
 
   const generateVersionNumber = (): string => {
     const latestVersion = versions
-      .filter(v => v.branchName === newVersion.branchName)
-      .sort((a, b) => b.versionNumber.localeCompare(a.versionNumber, undefined, { numeric: true }))[0]
-    
-    if (!latestVersion) return newVersion.isMajorVersion ? '1.0.0' : '0.1.0'
-    
-    const [major, minor, patch] = latestVersion.versionNumber.split('.').map(Number)
-    
+      .filter((v) => v.branchName === newVersion.branchName)
+      .sort((a, b) => b.versionNumber.localeCompare(a.versionNumber, undefined, { numeric: true }))[0];
+
+    if (!latestVersion) return newVersion.isMajorVersion ? "1.0.0" : "0.1.0";
+
+    const [major, minor, patch] = latestVersion.versionNumber.split(".").map(Number);
+
     if (newVersion.isMajorVersion) {
-      return `${major + 1}.0.0`
+      return `${major + 1}.0.0`;
     } else {
-      return `${major}.${minor}.${patch + 1}`
+      return `${major}.${minor}.${patch + 1}`;
     }
-  }
+  };
 
   const toggleVersionSelection = (versionId: string) => {
-    setSelectedVersions(prev => {
+    setSelectedVersions((prev) => {
       if (prev.includes(versionId)) {
-        return prev.filter(id => id !== versionId)
+        return prev.filter((id) => id !== versionId);
       } else if (prev.length < 2) {
-        return [...prev, versionId]
+        return [...prev, versionId];
       } else {
-        return [prev[1], versionId]
+        return [prev[1], versionId];
       }
-    })
-  }
+    });
+  };
 
   const toggleVersionExpansion = (versionId: string) => {
-    setExpandedVersions(prev => {
-      const newSet = new Set(prev)
+    setExpandedVersions((prev) => {
+      const newSet = new Set(prev);
       if (newSet.has(versionId)) {
-        newSet.delete(versionId)
+        newSet.delete(versionId);
       } else {
-        newSet.add(versionId)
+        newSet.add(versionId);
       }
-      return newSet
-    })
-  }
+      return newSet;
+    });
+  };
 
   const toggleBranchExpansion = (branchId: string) => {
-    setExpandedBranches(prev => {
-      const newSet = new Set(prev)
+    setExpandedBranches((prev) => {
+      const newSet = new Set(prev);
       if (newSet.has(branchId)) {
-        newSet.delete(branchId)
+        newSet.delete(branchId);
       } else {
-        newSet.add(branchId)
+        newSet.add(branchId);
       }
-      return newSet
-    })
-  }
+      return newSet;
+    });
+  };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
 
   const formatDate = (date: Date): string => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
-  }
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
 
-  if (!isActive) return null
+  if (!isActive) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -369,26 +375,22 @@ export default function VersionControl({
           <div className="flex items-center space-x-3">
             <DocumentDuplicateIcon className="w-6 h-6 text-blue-600" />
             <h2 className="text-xl font-semibold text-gray-900">Version Control</h2>
-            <Badge className="bg-blue-100 text-blue-800">
-              {versions.length} versions
-            </Badge>
+            <Badge className="bg-blue-100 text-blue-800">{versions.length} versions</Badge>
           </div>
           <div className="flex items-center space-x-3">
             {/* View Mode Toggle */}
             <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
               {[
-                { id: 'list', icon: DocumentIcon, label: 'List' },
-                { id: 'tree', icon: FolderIcon, label: 'Tree' },
-                { id: 'timeline', icon: ClockIcon, label: 'Timeline' }
+                { id: "list", icon: DocumentIcon, label: "List" },
+                { id: "tree", icon: FolderIcon, label: "Tree" },
+                { id: "timeline", icon: ClockIcon, label: "Timeline" },
               ].map((mode) => (
                 <button
                   key={mode.id}
                   onClick={() => setViewMode(mode.id as any)}
                   className={cn(
-                    'p-2 rounded transition-colors',
-                    viewMode === mode.id
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                    "p-2 rounded transition-colors",
+                    viewMode === mode.id ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900",
                   )}
                   title={mode.label}
                 >
@@ -396,11 +398,8 @@ export default function VersionControl({
                 </button>
               ))}
             </div>
-            
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
+
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <XCircleIcon className="w-5 h-5 text-gray-500" />
             </button>
           </div>
@@ -410,29 +409,29 @@ export default function VersionControl({
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
             {[
-              { id: 'versions', name: 'Versions', count: versions.length },
-              { id: 'branches', name: 'Branches', count: branches.length },
-              { id: 'compare', name: 'Compare', count: selectedVersions.length },
-              { id: 'create', name: 'Create New', count: null }
+              { id: "versions", name: "Versions", count: versions.length },
+              { id: "branches", name: "Branches", count: branches.length },
+              { id: "compare", name: "Compare", count: selectedVersions.length },
+              { id: "create", name: "Create New", count: null },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={cn(
-                  'py-4 px-1 border-b-2 font-medium text-sm transition-colors',
+                  "py-4 px-1 border-b-2 font-medium text-sm transition-colors",
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
                 )}
               >
                 {tab.name}
                 {tab.count !== null && (
-                  <span className={cn(
-                    'ml-2 py-0.5 px-2 rounded-full text-xs',
-                    activeTab === tab.id
-                      ? 'bg-blue-100 text-blue-600'
-                      : 'bg-gray-100 text-gray-600'
-                  )}>
+                  <span
+                    className={cn(
+                      "ml-2 py-0.5 px-2 rounded-full text-xs",
+                      activeTab === tab.id ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600",
+                    )}
+                  >
                     {tab.count}
                   </span>
                 )}
@@ -443,7 +442,7 @@ export default function VersionControl({
 
         {/* Content */}
         <div className="p-6 max-h-[calc(90vh-200px)] overflow-y-auto">
-          {activeTab === 'versions' && (
+          {activeTab === "versions" && (
             <div>
               {/* Filters and Search */}
               <div className="flex items-center justify-between mb-6">
@@ -463,7 +462,7 @@ export default function VersionControl({
                       <option value="deprecated">Deprecated</option>
                     </select>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <label className="text-sm font-medium text-gray-700">Sort by:</label>
                     <select
@@ -477,7 +476,7 @@ export default function VersionControl({
                     </select>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
                   <input
                     type="text"
@@ -486,7 +485,7 @@ export default function VersionControl({
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  
+
                   {selectedVersions.length === 2 && (
                     <button
                       onClick={() => onCompareVersions(selectedVersions[0], selectedVersions[1])}
@@ -507,7 +506,7 @@ export default function VersionControl({
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No Versions Found</h3>
                     <p className="text-gray-500 mb-4">No versions match your current filters.</p>
                     <button
-                      onClick={() => setActiveTab('create')}
+                      onClick={() => setActiveTab("create")}
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Create First Version
@@ -515,11 +514,14 @@ export default function VersionControl({
                   </div>
                 ) : (
                   filteredVersions.map((version) => (
-                    <Card key={version.id} className={cn(
-                      'p-6 transition-all',
-                      selectedVersions.includes(version.id) ? 'ring-2 ring-blue-500 bg-blue-50' : '',
-                      version.id === currentVersion ? 'border-green-500 bg-green-50' : ''
-                    )}>
+                    <Card
+                      key={version.id}
+                      className={cn(
+                        "p-6 transition-all",
+                        selectedVersions.includes(version.id) ? "ring-2 ring-blue-500 bg-blue-50" : "",
+                        version.id === currentVersion ? "border-green-500 bg-green-50" : "",
+                      )}
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4 flex-1">
                           {/* Selection Checkbox */}
@@ -529,34 +531,22 @@ export default function VersionControl({
                             onChange={() => toggleVersionSelection(version.id)}
                             className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
-                          
+
                           {/* Version Info */}
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
-                              <h3 className="text-lg font-semibold text-gray-900">
-                                v{version.versionNumber}
-                              </h3>
+                              <h3 className="text-lg font-semibold text-gray-900">v{version.versionNumber}</h3>
                               {version.id === currentVersion && (
-                                <Badge className="bg-green-100 text-green-800">
-                                  Current
-                                </Badge>
+                                <Badge className="bg-green-100 text-green-800">Current</Badge>
                               )}
-                              <Badge className={VERSION_STATUS_COLORS[version.status]}>
-                                {version.status}
-                              </Badge>
-                              {version.isMajorVersion && (
-                                <Badge className="bg-purple-100 text-purple-800">
-                                  Major
-                                </Badge>
-                              )}
-                              {version.isLocked && (
-                                <LockClosedIcon className="w-4 h-4 text-red-500" title="Locked" />
-                              )}
+                              <Badge className={VERSION_STATUS_COLORS[version.status]}>{version.status}</Badge>
+                              {version.isMajorVersion && <Badge className="bg-purple-100 text-purple-800">Major</Badge>}
+                              {version.isLocked && <LockClosedIcon className="w-4 h-4 text-red-500" title="Locked" />}
                             </div>
-                            
+
                             <h4 className="font-medium text-gray-900 mb-1">{version.title}</h4>
                             <p className="text-gray-600 text-sm mb-3">{version.description}</p>
-                            
+
                             {/* Metadata */}
                             <div className="flex items-center space-x-6 text-sm text-gray-500 mb-3">
                               <div className="flex items-center space-x-1">
@@ -580,7 +570,7 @@ export default function VersionControl({
                                 <span>{version.downloadCount} downloads</span>
                               </div>
                             </div>
-                            
+
                             {/* Tags */}
                             {version.tags.length > 0 && (
                               <div className="flex flex-wrap gap-2 mb-3">
@@ -595,7 +585,7 @@ export default function VersionControl({
                                 ))}
                               </div>
                             )}
-                            
+
                             {/* Changes Summary */}
                             {version.changesSummary && (
                               <div className="bg-gray-50 rounded-lg p-3 mb-3">
@@ -605,7 +595,7 @@ export default function VersionControl({
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Actions */}
                         <div className="flex items-center space-x-2">
                           <button
@@ -615,7 +605,7 @@ export default function VersionControl({
                           >
                             <ArrowDownTrayIcon className="w-4 h-4" />
                           </button>
-                          
+
                           {version.id !== currentVersion && (
                             <button
                               onClick={() => onRestoreVersion(version.id)}
@@ -625,7 +615,7 @@ export default function VersionControl({
                               <ArrowPathIcon className="w-4 h-4" />
                             </button>
                           )}
-                          
+
                           {version.isLocked ? (
                             <button
                               onClick={() => onUnlockVersion(version.id)}
@@ -644,17 +634,15 @@ export default function VersionControl({
                               <LockClosedIcon className="w-4 h-4" />
                             </button>
                           )}
-                          
+
                           <button
-                            onClick={() => setShowCommentForm(
-                              showCommentForm === version.id ? null : version.id
-                            )}
+                            onClick={() => setShowCommentForm(showCommentForm === version.id ? null : version.id)}
                             className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                             title="Add Comment"
                           >
                             <ChatBubbleLeftRightIcon className="w-4 h-4" />
                           </button>
-                          
+
                           <button
                             onClick={() => toggleVersionExpansion(version.id)}
                             className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -667,7 +655,7 @@ export default function VersionControl({
                           </button>
                         </div>
                       </div>
-                      
+
                       {/* Comment Form */}
                       {showCommentForm === version.id && (
                         <div className="mt-4 pt-4 border-t border-gray-200">
@@ -703,8 +691,8 @@ export default function VersionControl({
                               </button>
                               <button
                                 onClick={() => {
-                                  setShowCommentForm(null)
-                                  setNewComment({ versionId: '', content: '', type: 'general' })
+                                  setShowCommentForm(null);
+                                  setNewComment({ versionId: "", content: "", type: "general" });
                                 }}
                                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                               >
@@ -714,7 +702,7 @@ export default function VersionControl({
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Expanded Details */}
                       {expandedVersions.has(version.id) && (
                         <div className="mt-4 pt-4 border-t border-gray-200">
@@ -728,16 +716,12 @@ export default function VersionControl({
                                     <div className="flex items-start justify-between mb-2">
                                       <div className="flex items-center space-x-2">
                                         <span className="font-medium text-gray-900">{comment.author}</span>
-                                        <Badge className={COMMENT_TYPE_COLORS[comment.type]}>
-                                          {comment.type}
-                                        </Badge>
+                                        <Badge className={COMMENT_TYPE_COLORS[comment.type]}>{comment.type}</Badge>
                                         {comment.isResolved && (
                                           <CheckCircleIcon className="w-4 h-4 text-green-500" title="Resolved" />
                                         )}
                                       </div>
-                                      <span className="text-sm text-gray-500">
-                                        {formatDate(comment.createdAt)}
-                                      </span>
+                                      <span className="text-sm text-gray-500">{formatDate(comment.createdAt)}</span>
                                     </div>
                                     <p className="text-gray-700">{comment.content}</p>
                                   </div>
@@ -745,7 +729,7 @@ export default function VersionControl({
                               </div>
                             </div>
                           )}
-                          
+
                           {/* Detailed Metadata */}
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
@@ -764,7 +748,7 @@ export default function VersionControl({
                             </div>
                             <div>
                               <span className="font-medium text-gray-700">Branch:</span>
-                              <span className="ml-2 text-gray-600">{version.branchName || 'main'}</span>
+                              <span className="ml-2 text-gray-600">{version.branchName || "main"}</span>
                             </div>
                           </div>
                         </div>
@@ -776,20 +760,20 @@ export default function VersionControl({
             </div>
           )}
 
-          {activeTab === 'branches' && (
+          {activeTab === "branches" && (
             <div>
               {/* Branch Actions */}
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Branches</h3>
                 <button
-                  onClick={() => setActiveTab('create')}
+                  onClick={() => setActiveTab("create")}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
                 >
                   <PlusIcon className="w-4 h-4" />
                   <span>Create Branch</span>
                 </button>
               </div>
-              
+
               {/* Branches List */}
               <div className="space-y-4">
                 {branches.length === 0 ? (
@@ -798,7 +782,7 @@ export default function VersionControl({
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No Branches</h3>
                     <p className="text-gray-500 mb-4">Create branches to work on different versions in parallel.</p>
                     <button
-                      onClick={() => setActiveTab('create')}
+                      onClick={() => setActiveTab("create")}
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Create First Branch
@@ -811,20 +795,14 @@ export default function VersionControl({
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-lg font-semibold text-gray-900">{branch.name}</h3>
-                            {branch.isActive && (
-                              <Badge className="bg-green-100 text-green-800">
-                                Active
-                              </Badge>
-                            )}
+                            {branch.isActive && <Badge className="bg-green-100 text-green-800">Active</Badge>}
                             {branch.mergeStatus && (
-                              <Badge className={MERGE_STATUS_COLORS[branch.mergeStatus]}>
-                                {branch.mergeStatus}
-                              </Badge>
+                              <Badge className={MERGE_STATUS_COLORS[branch.mergeStatus]}>{branch.mergeStatus}</Badge>
                             )}
                           </div>
-                          
+
                           <p className="text-gray-600 mb-3">{branch.description}</p>
-                          
+
                           <div className="flex items-center space-x-6 text-sm text-gray-500">
                             <div className="flex items-center space-x-1">
                               <UserIcon className="w-4 h-4" />
@@ -844,18 +822,18 @@ export default function VersionControl({
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
-                          {branch.mergeStatus === 'pending' && (
+                          {branch.mergeStatus === "pending" && (
                             <button
-                              onClick={() => onMergeBranch(branch.id, 'main')}
+                              onClick={() => onMergeBranch(branch.id, "main")}
                               className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors flex items-center space-x-1"
                             >
                               <ArrowsPointingInIcon className="w-4 h-4" />
                               <span>Merge</span>
                             </button>
                           )}
-                          
+
                           <button
                             onClick={() => toggleBranchExpansion(branch.id)}
                             className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -868,7 +846,7 @@ export default function VersionControl({
                           </button>
                         </div>
                       </div>
-                      
+
                       {/* Expanded Branch Details */}
                       {expandedBranches.has(branch.id) && (
                         <div className="mt-4 pt-4 border-t border-gray-200">
@@ -879,7 +857,7 @@ export default function VersionControl({
                             </div>
                             <div>
                               <span className="font-medium text-gray-700">Merge Target:</span>
-                              <span className="ml-2 text-gray-600">{branch.mergeTarget || 'main'}</span>
+                              <span className="ml-2 text-gray-600">{branch.mergeTarget || "main"}</span>
                             </div>
                           </div>
                         </div>
@@ -891,10 +869,10 @@ export default function VersionControl({
             </div>
           )}
 
-          {activeTab === 'compare' && (
+          {activeTab === "compare" && (
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-6">Compare Versions</h3>
-              
+
               {selectedVersions.length < 2 ? (
                 <div className="text-center py-12">
                   <ArrowsRightLeftIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -904,17 +882,15 @@ export default function VersionControl({
               ) : (
                 <div className="grid grid-cols-2 gap-6">
                   {selectedVersions.map((versionId, index) => {
-                    const version = versions.find(v => v.id === versionId)
-                    if (!version) return null
-                    
+                    const version = versions.find((v) => v.id === versionId);
+                    if (!version) return null;
+
                     return (
                       <Card key={versionId} className="p-6">
                         <div className="text-center mb-4">
-                          <h4 className="text-lg font-semibold text-gray-900">
-                            Version {index + 1}
-                          </h4>
+                          <h4 className="text-lg font-semibold text-gray-900">Version {index + 1}</h4>
                         </div>
-                        
+
                         <div className="space-y-3">
                           <div>
                             <span className="font-medium text-gray-700">Version:</span>
@@ -940,7 +916,7 @@ export default function VersionControl({
                             <span className="font-medium text-gray-700">Pages:</span>
                             <span className="ml-2 text-gray-600">{version.metadata.pageCount}</span>
                           </div>
-                          
+
                           {version.changesSummary && (
                             <div>
                               <span className="font-medium text-gray-700">Changes:</span>
@@ -949,11 +925,11 @@ export default function VersionControl({
                           )}
                         </div>
                       </Card>
-                    )
+                    );
                   })}
                 </div>
               )}
-              
+
               {selectedVersions.length === 2 && (
                 <div className="mt-6 text-center">
                   <button
@@ -968,32 +944,32 @@ export default function VersionControl({
             </div>
           )}
 
-          {activeTab === 'create' && (
+          {activeTab === "create" && (
             <div className="max-w-2xl mx-auto">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">Create New Version or Branch</h3>
-              
+
               {/* Toggle between version and branch creation */}
               <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1 mb-6">
                 <button
-                  onClick={() => setActiveTab('create')}
+                  onClick={() => setActiveTab("create")}
                   className="flex-1 py-2 px-4 rounded text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm"
                 >
                   Create Version
                 </button>
                 <button
-                  onClick={() => {/* Handle branch creation mode */}}
+                  onClick={() => {
+                    /* Handle branch creation mode */
+                  }}
                   className="flex-1 py-2 px-4 rounded text-sm font-medium transition-colors text-gray-600 hover:text-gray-900"
                 >
                   Create Branch
                 </button>
               </div>
-              
+
               {/* Create Version Form */}
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Version Title *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Version Title *</label>
                   <input
                     type="text"
                     value={newVersion.title}
@@ -1002,11 +978,9 @@ export default function VersionControl({
                     placeholder="Enter version title"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                   <textarea
                     value={newVersion.description}
                     onChange={(e) => setNewVersion({ ...newVersion, description: e.target.value })}
@@ -1015,11 +989,9 @@ export default function VersionControl({
                     placeholder="Describe the changes in this version"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Changes Summary
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Changes Summary</label>
                   <textarea
                     value={newVersion.changesSummary}
                     onChange={(e) => setNewVersion({ ...newVersion, changesSummary: e.target.value })}
@@ -1028,12 +1000,10 @@ export default function VersionControl({
                     placeholder="Summarize the key changes made"
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Branch
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Branch</label>
                     <select
                       value={newVersion.branchName}
                       onChange={(e) => setNewVersion({ ...newVersion, branchName: e.target.value })}
@@ -1047,7 +1017,7 @@ export default function VersionControl({
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="flex items-end">
                     <label className="flex items-center space-x-2">
                       <input
@@ -1060,12 +1030,10 @@ export default function VersionControl({
                     </label>
                   </div>
                 </div>
-                
+
                 {/* Tags */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
                   <div className="flex flex-wrap gap-2 mb-2">
                     {newVersion.tags.map((tag, index) => (
                       <span
@@ -1074,10 +1042,12 @@ export default function VersionControl({
                       >
                         {tag}
                         <button
-                          onClick={() => setNewVersion({
-                            ...newVersion,
-                            tags: newVersion.tags.filter((_, i) => i !== index)
-                          })}
+                          onClick={() =>
+                            setNewVersion({
+                              ...newVersion,
+                              tags: newVersion.tags.filter((_, i) => i !== index),
+                            })
+                          }
                           className="ml-2 text-blue-600 hover:text-blue-800"
                         >
                           ×
@@ -1091,12 +1061,12 @@ export default function VersionControl({
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' && newTag.trim()) {
+                        if (e.key === "Enter" && newTag.trim()) {
                           setNewVersion({
                             ...newVersion,
-                            tags: [...newVersion.tags, newTag.trim()]
-                          })
-                          setNewTag('')
+                            tags: [...newVersion.tags, newTag.trim()],
+                          });
+                          setNewTag("");
                         }
                       }}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -1104,20 +1074,20 @@ export default function VersionControl({
                     />
                   </div>
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex items-center justify-end space-x-3">
                   <button
                     onClick={() => {
                       setNewVersion({
-                        title: '',
-                        description: '',
+                        title: "",
+                        description: "",
                         isMajorVersion: false,
-                        branchName: 'main',
+                        branchName: "main",
                         tags: [],
-                        changesSummary: ''
-                      })
-                      setActiveTab('versions')
+                        changesSummary: "",
+                      });
+                      setActiveTab("versions");
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                   >
@@ -1137,5 +1107,5 @@ export default function VersionControl({
         </div>
       </div>
     </div>
-  )
+  );
 }

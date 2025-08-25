@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react'
-import { Card, Badge } from '@/components/ui'
+import React, { useState, useRef, useEffect } from "react";
+import { Card, Badge } from "@/components/ui";
 import {
   ChatBubbleLeftRightIcon,
   PlusIcon,
@@ -13,77 +13,77 @@ import {
   PencilIcon,
   CheckIcon,
   XMarkIcon,
-  UserIcon
-} from '@heroicons/react/24/outline'
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid'
-import { cn } from '@/lib/utils'
+  UserIcon,
+} from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { cn } from "@/lib/utils";
 
 interface Comment {
-  id: string
-  content: string
+  id: string;
+  content: string;
   author: {
-    id: string
-    name: string
-    email: string
-    avatar?: string
-  }
-  createdAt: Date
-  updatedAt?: Date
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  createdAt: Date;
+  updatedAt?: Date;
   position: {
-    page: number
-    x: number
-    y: number
-  }
-  replies: Reply[]
-  likes: string[] // user IDs who liked
-  status: 'open' | 'resolved' | 'archived'
-  priority: 'low' | 'medium' | 'high'
-  tags: string[]
-  isEditing?: boolean
+    page: number;
+    x: number;
+    y: number;
+  };
+  replies: Reply[];
+  likes: string[]; // user IDs who liked
+  status: "open" | "resolved" | "archived";
+  priority: "low" | "medium" | "high";
+  tags: string[];
+  isEditing?: boolean;
 }
 
 interface Reply {
-  id: string
-  content: string
+  id: string;
+  content: string;
   author: {
-    id: string
-    name: string
-    email: string
-    avatar?: string
-  }
-  createdAt: Date
-  updatedAt?: Date
-  likes: string[]
-  isEditing?: boolean
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  createdAt: Date;
+  updatedAt?: Date;
+  likes: string[];
+  isEditing?: boolean;
 }
 
 interface CommentSystemProps {
-  comments: Comment[]
+  comments: Comment[];
   currentUser: {
-    id: string
-    name: string
-    email: string
-    avatar?: string
-  }
-  onAddComment: (comment: Omit<Comment, 'id' | 'createdAt' | 'replies' | 'likes'>) => void
-  onUpdateComment: (id: string, content: string) => void
-  onDeleteComment: (id: string) => void
-  onReplyToComment: (commentId: string, reply: Omit<Reply, 'id' | 'createdAt' | 'likes'>) => void
-  onUpdateReply: (commentId: string, replyId: string, content: string) => void
-  onDeleteReply: (commentId: string, replyId: string) => void
-  onLikeComment: (id: string) => void
-  onLikeReply: (commentId: string, replyId: string) => void
-  onResolveComment: (id: string) => void
-  onChangeCommentStatus: (id: string, status: Comment['status']) => void
-  selectedCommentId?: string
-  onSelectComment: (id: string | undefined) => void
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  onAddComment: (comment: Omit<Comment, "id" | "createdAt" | "replies" | "likes">) => void;
+  onUpdateComment: (id: string, content: string) => void;
+  onDeleteComment: (id: string) => void;
+  onReplyToComment: (commentId: string, reply: Omit<Reply, "id" | "createdAt" | "likes">) => void;
+  onUpdateReply: (commentId: string, replyId: string, content: string) => void;
+  onDeleteReply: (commentId: string, replyId: string) => void;
+  onLikeComment: (id: string) => void;
+  onLikeReply: (commentId: string, replyId: string) => void;
+  onResolveComment: (id: string) => void;
+  onChangeCommentStatus: (id: string, status: Comment["status"]) => void;
+  selectedCommentId?: string;
+  onSelectComment: (id: string | undefined) => void;
 }
 
 interface NewCommentData {
-  content: string
-  position: { page: number; x: number; y: number }
-  priority: Comment['priority']
-  tags: string[]
+  content: string;
+  position: { page: number; x: number; y: number };
+  priority: Comment["priority"];
+  tags: string[];
 }
 
 export default function CommentSystem({
@@ -100,138 +100,144 @@ export default function CommentSystem({
   onResolveComment,
   onChangeCommentStatus,
   selectedCommentId,
-  onSelectComment
+  onSelectComment,
 }: CommentSystemProps) {
-  const [isAddingComment, setIsAddingComment] = useState(false)
+  const [isAddingComment, setIsAddingComment] = useState(false);
   const [newComment, setNewComment] = useState<NewCommentData>({
-    content: '',
+    content: "",
     position: { page: 1, x: 0, y: 0 },
-    priority: 'medium',
-    tags: []
-  })
-  const [replyingTo, setReplyingTo] = useState<string | null>(null)
-  const [replyContent, setReplyContent] = useState('')
-  const [filter, setFilter] = useState<'all' | 'open' | 'resolved' | 'archived'>('all')
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'priority'>('newest')
-  const [searchQuery, setSearchQuery] = useState('')
+    priority: "medium",
+    tags: [],
+  });
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState("");
+  const [filter, setFilter] = useState<"all" | "open" | "resolved" | "archived">("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "priority">("newest");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const commentInputRef = useRef<HTMLTextAreaElement>(null)
-  const replyInputRef = useRef<HTMLTextAreaElement>(null)
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+  const replyInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (isAddingComment && commentInputRef.current) {
-      commentInputRef.current.focus()
+      commentInputRef.current.focus();
     }
-  }, [isAddingComment])
+  }, [isAddingComment]);
 
   useEffect(() => {
     if (replyingTo && replyInputRef.current) {
-      replyInputRef.current.focus()
+      replyInputRef.current.focus();
     }
-  }, [replyingTo])
+  }, [replyingTo]);
 
   const filteredComments = comments
-    .filter(comment => {
-      if (filter !== 'all' && comment.status !== filter) return false
+    .filter((comment) => {
+      if (filter !== "all" && comment.status !== filter) return false;
       if (searchQuery) {
-        const query = searchQuery.toLowerCase()
+        const query = searchQuery.toLowerCase();
         return (
           comment.content.toLowerCase().includes(query) ||
           comment.author.name.toLowerCase().includes(query) ||
-          comment.tags.some(tag => tag.toLowerCase().includes(query))
-        )
+          comment.tags.some((tag) => tag.toLowerCase().includes(query))
+        );
       }
-      return true
+      return true;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'newest':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        case 'oldest':
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        case 'priority':
-          const priorityOrder = { high: 3, medium: 2, low: 1 }
-          return priorityOrder[b.priority] - priorityOrder[a.priority]
+        case "newest":
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "oldest":
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case "priority":
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
         default:
-          return 0
+          return 0;
       }
-    })
+    });
 
   const handleAddComment = () => {
-    if (!newComment.content.trim()) return
-    
+    if (!newComment.content.trim()) return;
+
     onAddComment({
       content: newComment.content,
       author: currentUser,
       position: newComment.position,
-      status: 'open',
+      status: "open",
       priority: newComment.priority,
-      tags: newComment.tags
-    })
-    
+      tags: newComment.tags,
+    });
+
     setNewComment({
-      content: '',
+      content: "",
       position: { page: 1, x: 0, y: 0 },
-      priority: 'medium',
-      tags: []
-    })
-    setIsAddingComment(false)
-  }
+      priority: "medium",
+      tags: [],
+    });
+    setIsAddingComment(false);
+  };
 
   const handleReply = (commentId: string) => {
-    if (!replyContent.trim()) return
-    
+    if (!replyContent.trim()) return;
+
     onReplyToComment(commentId, {
       content: replyContent,
-      author: currentUser
-    })
-    
-    setReplyContent('')
-    setReplyingTo(null)
-  }
+      author: currentUser,
+    });
+
+    setReplyContent("");
+    setReplyingTo(null);
+  };
 
   const formatDate = (date: Date) => {
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-    
-    if (minutes < 1) return 'Just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    if (days < 7) return `${days}d ago`
-    return date.toLocaleDateString()
-  }
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
-  const getPriorityColor = (priority: Comment['priority']) => {
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const getPriorityColor = (priority: Comment["priority"]) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800'
-      case 'medium': return 'bg-yellow-100 text-yellow-800'
-      case 'low': return 'bg-green-100 text-green-800'
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-green-100 text-green-800";
     }
-  }
+  };
 
-  const getStatusColor = (status: Comment['status']) => {
+  const getStatusColor = (status: Comment["status"]) => {
     switch (status) {
-      case 'open': return 'bg-blue-100 text-blue-800'
-      case 'resolved': return 'bg-green-100 text-green-800'
-      case 'archived': return 'bg-gray-100 text-gray-800'
+      case "open":
+        return "bg-blue-100 text-blue-800";
+      case "resolved":
+        return "bg-green-100 text-green-800";
+      case "archived":
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   const CommentCard = ({ comment }: { comment: Comment }) => {
-    const [editContent, setEditContent] = useState(comment.content)
-    const isLiked = comment.likes.includes(currentUser.id)
-    const isSelected = selectedCommentId === comment.id
-    const canEdit = comment.author.id === currentUser.id
-    const canDelete = comment.author.id === currentUser.id
+    const [editContent, setEditContent] = useState(comment.content);
+    const isLiked = comment.likes.includes(currentUser.id);
+    const isSelected = selectedCommentId === comment.id;
+    const canEdit = comment.author.id === currentUser.id;
+    const canDelete = comment.author.id === currentUser.id;
 
     return (
-      <Card 
+      <Card
         className={cn(
-          'transition-all duration-200 cursor-pointer hover:shadow-md',
-          isSelected && 'ring-2 ring-primary-500 shadow-lg'
+          "transition-all duration-200 cursor-pointer hover:shadow-md",
+          isSelected && "ring-2 ring-primary-500 shadow-lg",
         )}
         onClick={() => onSelectComment(isSelected ? undefined : comment.id)}
         padding="lg"
@@ -242,11 +248,7 @@ export default function CommentSystem({
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                 {comment.author.avatar ? (
-                  <img 
-                    src={comment.author.avatar} 
-                    alt={comment.author.name}
-                    className="w-8 h-8 rounded-full"
-                  />
+                  <img src={comment.author.avatar} alt={comment.author.name} className="w-8 h-8 rounded-full" />
                 ) : (
                   <UserIcon className="w-4 h-4 text-primary-600" />
                 )}
@@ -255,11 +257,11 @@ export default function CommentSystem({
                 <p className="font-medium text-neutral-900">{comment.author.name}</p>
                 <p className="text-xs text-neutral-500">
                   Page {comment.position.page} • {formatDate(comment.createdAt)}
-                  {comment.updatedAt && ' (edited)'}
+                  {comment.updatedAt && " (edited)"}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Badge size="sm" className={getPriorityColor(comment.priority)}>
                 {comment.priority}
@@ -267,7 +269,7 @@ export default function CommentSystem({
               <Badge size="sm" className={getStatusColor(comment.status)}>
                 {comment.status}
               </Badge>
-              
+
               <div className="relative">
                 <button className="p-1 hover:bg-neutral-100 rounded">
                   <EllipsisVerticalIcon className="w-4 h-4" />
@@ -287,16 +289,13 @@ export default function CommentSystem({
                   placeholder="Edit your comment..."
                 />
                 <div className="flex justify-end space-x-2">
-                  <button 
+                  <button
                     onClick={() => onUpdateComment(comment.id, comment.content)}
                     className="btn btn-secondary btn-sm"
                   >
                     Cancel
                   </button>
-                  <button 
-                    onClick={() => onUpdateComment(comment.id, editContent)}
-                    className="btn btn-primary btn-sm"
-                  >
+                  <button onClick={() => onUpdateComment(comment.id, editContent)} className="btn btn-primary btn-sm">
                     Save
                   </button>
                 </div>
@@ -304,7 +303,7 @@ export default function CommentSystem({
             ) : (
               <p className="text-neutral-700 whitespace-pre-wrap">{comment.content}</p>
             )}
-            
+
             {/* Tags */}
             {comment.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
@@ -322,26 +321,22 @@ export default function CommentSystem({
             <div className="flex items-center space-x-4">
               <button
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onLikeComment(comment.id)
+                  e.stopPropagation();
+                  onLikeComment(comment.id);
                 }}
                 className={cn(
-                  'flex items-center space-x-1 text-sm transition-colors',
-                  isLiked ? 'text-red-500' : 'text-neutral-500 hover:text-red-500'
+                  "flex items-center space-x-1 text-sm transition-colors",
+                  isLiked ? "text-red-500" : "text-neutral-500 hover:text-red-500",
                 )}
               >
-                {isLiked ? (
-                  <HeartSolidIcon className="w-4 h-4" />
-                ) : (
-                  <HeartIcon className="w-4 h-4" />
-                )}
+                {isLiked ? <HeartSolidIcon className="w-4 h-4" /> : <HeartIcon className="w-4 h-4" />}
                 <span>{comment.likes.length}</span>
               </button>
-              
+
               <button
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setReplyingTo(comment.id)
+                  e.stopPropagation();
+                  setReplyingTo(comment.id);
                 }}
                 className="flex items-center space-x-1 text-sm text-neutral-500 hover:text-primary-500 transition-colors"
               >
@@ -349,10 +344,10 @@ export default function CommentSystem({
                 <span>Reply</span>
               </button>
             </div>
-            
+
             {comment.replies.length > 0 && (
               <span className="text-sm text-neutral-500">
-                {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
+                {comment.replies.length} {comment.replies.length === 1 ? "reply" : "replies"}
               </span>
             )}
           </div>
@@ -368,16 +363,16 @@ export default function CommentSystem({
                 placeholder="Write a reply..."
               />
               <div className="flex justify-end space-x-2">
-                <button 
+                <button
                   onClick={() => {
-                    setReplyingTo(null)
-                    setReplyContent('')
+                    setReplyingTo(null);
+                    setReplyContent("");
                   }}
                   className="btn btn-secondary btn-sm"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={() => handleReply(comment.id)}
                   className="btn btn-primary btn-sm"
                   disabled={!replyContent.trim()}
@@ -392,20 +387,16 @@ export default function CommentSystem({
           {comment.replies.length > 0 && (
             <div className="pl-11 space-y-3 border-l-2 border-neutral-100 ml-5">
               {comment.replies.map((reply) => {
-                const isReplyLiked = reply.likes.includes(currentUser.id)
-                const canEditReply = reply.author.id === currentUser.id
-                
+                const isReplyLiked = reply.likes.includes(currentUser.id);
+                const canEditReply = reply.author.id === currentUser.id;
+
                 return (
                   <div key={reply.id} className="pl-4 space-y-2">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-2">
                         <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
                           {reply.author.avatar ? (
-                            <img 
-                              src={reply.author.avatar} 
-                              alt={reply.author.name}
-                              className="w-6 h-6 rounded-full"
-                            />
+                            <img src={reply.author.avatar} alt={reply.author.name} className="w-6 h-6 rounded-full" />
                           ) : (
                             <UserIcon className="w-3 h-3 text-primary-600" />
                           )}
@@ -414,11 +405,11 @@ export default function CommentSystem({
                           <p className="text-sm font-medium text-neutral-900">{reply.author.name}</p>
                           <p className="text-xs text-neutral-500">
                             {formatDate(reply.createdAt)}
-                            {reply.updatedAt && ' (edited)'}
+                            {reply.updatedAt && " (edited)"}
                           </p>
                         </div>
                       </div>
-                      
+
                       {canEditReply && (
                         <div className="relative">
                           <button className="p-1 hover:bg-neutral-100 rounded">
@@ -427,34 +418,30 @@ export default function CommentSystem({
                         </div>
                       )}
                     </div>
-                    
+
                     <p className="text-sm text-neutral-700 pl-8">{reply.content}</p>
-                    
+
                     <div className="flex items-center pl-8">
                       <button
                         onClick={() => onLikeReply(comment.id, reply.id)}
                         className={cn(
-                          'flex items-center space-x-1 text-xs transition-colors',
-                          isReplyLiked ? 'text-red-500' : 'text-neutral-500 hover:text-red-500'
+                          "flex items-center space-x-1 text-xs transition-colors",
+                          isReplyLiked ? "text-red-500" : "text-neutral-500 hover:text-red-500",
                         )}
                       >
-                        {isReplyLiked ? (
-                          <HeartSolidIcon className="w-3 h-3" />
-                        ) : (
-                          <HeartIcon className="w-3 h-3" />
-                        )}
+                        {isReplyLiked ? <HeartSolidIcon className="w-3 h-3" /> : <HeartIcon className="w-3 h-3" />}
                         <span>{reply.likes.length}</span>
                       </button>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           )}
         </div>
       </Card>
-    )
-  }
+    );
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -465,16 +452,13 @@ export default function CommentSystem({
             <ChatBubbleLeftRightIcon className="w-5 h-5 mr-2" />
             Comments ({filteredComments.length})
           </h2>
-          
-          <button
-            onClick={() => setIsAddingComment(true)}
-            className="btn btn-primary btn-sm"
-          >
+
+          <button onClick={() => setIsAddingComment(true)} className="btn btn-primary btn-sm">
             <PlusIcon className="w-4 h-4 mr-1" />
             Add Comment
           </button>
         </div>
-        
+
         {/* Search and Filters */}
         <div className="space-y-3">
           <input
@@ -484,7 +468,7 @@ export default function CommentSystem({
             placeholder="Search comments..."
             className="input input-sm w-full"
           />
-          
+
           <div className="flex space-x-2">
             <select
               value={filter}
@@ -496,7 +480,7 @@ export default function CommentSystem({
               <option value="resolved">Resolved</option>
               <option value="archived">Archived</option>
             </select>
-            
+
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
@@ -521,12 +505,12 @@ export default function CommentSystem({
               className="input w-full h-24 resize-none"
               placeholder="Write your comment..."
             />
-            
+
             <div className="flex items-center justify-between">
               <div className="flex space-x-2">
                 <select
                   value={newComment.priority}
-                  onChange={(e) => setNewComment({ ...newComment, priority: e.target.value as Comment['priority'] })}
+                  onChange={(e) => setNewComment({ ...newComment, priority: e.target.value as Comment["priority"] })}
                   className="input input-sm"
                 >
                   <option value="low">Low Priority</option>
@@ -534,23 +518,23 @@ export default function CommentSystem({
                   <option value="high">High Priority</option>
                 </select>
               </div>
-              
+
               <div className="flex space-x-2">
-                <button 
+                <button
                   onClick={() => {
-                    setIsAddingComment(false)
+                    setIsAddingComment(false);
                     setNewComment({
-                      content: '',
+                      content: "",
                       position: { page: 1, x: 0, y: 0 },
-                      priority: 'medium',
-                      tags: []
-                    })
+                      priority: "medium",
+                      tags: [],
+                    });
                   }}
                   className="btn btn-secondary btn-sm"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleAddComment}
                   className="btn btn-primary btn-sm"
                   disabled={!newComment.content.trim()}
@@ -568,19 +552,15 @@ export default function CommentSystem({
         {filteredComments.length === 0 ? (
           <div className="text-center py-12">
             <ChatBubbleLeftRightIcon className="w-12 h-12 mx-auto text-neutral-300 mb-4" />
-            <p className="text-neutral-500">
-              {searchQuery ? 'No comments match your search' : 'No comments yet'}
-            </p>
+            <p className="text-neutral-500">{searchQuery ? "No comments match your search" : "No comments yet"}</p>
             <p className="text-sm text-neutral-400">
-              {searchQuery ? 'Try adjusting your search terms' : 'Be the first to add a comment'}
+              {searchQuery ? "Try adjusting your search terms" : "Be the first to add a comment"}
             </p>
           </div>
         ) : (
-          filteredComments.map((comment) => (
-            <CommentCard key={comment.id} comment={comment} />
-          ))
+          filteredComments.map((comment) => <CommentCard key={comment.id} comment={comment} />)
         )}
       </div>
     </div>
-  )
+  );
 }

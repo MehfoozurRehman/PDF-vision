@@ -1,55 +1,55 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useUI } from '@/store/ui-store'
-import { useTranslation } from '@/lib/useTranslation'
-import { XMarkIcon, MoonIcon, SunIcon, ComputerDesktopIcon, LanguageIcon } from '@heroicons/react/24/outline'
+import { useState } from "react";
+import { useUI } from "@/store/ui-store";
+import { useTranslation } from "@/lib/useTranslation";
+import { XMarkIcon, MoonIcon, SunIcon, ComputerDesktopIcon, LanguageIcon } from "@heroicons/react/24/outline";
 
 export default function SettingsModal() {
-  const { state: uiState, dispatch: uiDispatch } = useUI()
-  const { t, isRTL } = useTranslation()
-  const [activeTab, setActiveTab] = useState('general')
+  const { state: uiState, dispatch: uiDispatch } = useUI();
+  const { t, isRTL } = useTranslation();
+  const [activeTab, setActiveTab] = useState("general");
 
-  if (!uiState.modals.settings) return null
+  if (!uiState.modals.settings) return null;
 
   const closeModal = () => {
-    uiDispatch({ type: 'CLOSE_MODAL', payload: 'settings' })
-  }
+    uiDispatch({ type: "CLOSE_MODAL", payload: "settings" });
+  };
 
-  const handleThemeChange = (theme: 'light' | 'dark' | 'auto') => {
-    uiDispatch({ type: 'SET_THEME', payload: theme })
-  }
+  const handleThemeChange = (theme: "light" | "dark" | "auto") => {
+    uiDispatch({ type: "SET_THEME", payload: theme });
+  };
 
   const handleLanguageChange = (language: string) => {
-    uiDispatch({ type: 'SET_LANGUAGE', payload: language })
-  }
+    uiDispatch({ type: "SET_LANGUAGE", payload: language });
+  };
 
   const handlePreferenceChange = (key: keyof typeof uiState.preferences, value: any) => {
-    uiDispatch({ type: 'UPDATE_PREFERENCES', payload: { [key]: value } })
-  }
+    uiDispatch({ type: "UPDATE_PREFERENCES", payload: { [key]: value } });
+  };
 
   const tabs = [
-    { id: 'general', label: t('general') },
-    { id: 'display', label: t('display') },
-    { id: 'editing', label: t('editing') },
-    { id: 'workspace', label: 'Workspace' },
-    { id: 'components', label: 'Components' },
-    { id: 'shortcuts', label: 'Shortcuts' },
-    { id: 'security', label: t('security') },
-    { id: 'advanced', label: t('advanced') },
-  ]
+    { id: "general", label: t("general") },
+    { id: "display", label: t("display") },
+    { id: "editing", label: t("editing") },
+    { id: "workspace", label: "Workspace" },
+    { id: "components", label: "Components" },
+    { id: "shortcuts", label: "Shortcuts" },
+    { id: "security", label: t("security") },
+    { id: "advanced", label: t("advanced") },
+  ];
 
   const renderGeneralSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium text-gray-900 mb-3">{t('language')}</h3>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">{t("language")}</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm text-gray-700">{t('selectLanguage')}</label>
-              <p className="text-xs text-gray-500">{t('chooseLanguage')}</p>
+              <label className="text-sm text-gray-700">{t("selectLanguage")}</label>
+              <p className="text-xs text-gray-500">{t("chooseLanguage")}</p>
             </div>
-            <select 
+            <select
               value={uiState.language}
               onChange={(e) => handleLanguageChange(e.target.value)}
               className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -62,38 +62,38 @@ export default function SettingsModal() {
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-gray-900 mb-3">{t('application')}</h3>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">{t("application")}</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm text-gray-700">{t('autoSave')}</label>
-              <p className="text-xs text-gray-500">{t('autoSaveDescription')}</p>
+              <label className="text-sm text-gray-700">{t("autoSave")}</label>
+              <p className="text-xs text-gray-500">{t("autoSaveDescription")}</p>
             </div>
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={uiState.preferences.autoSave}
-              onChange={(e) => handlePreferenceChange('autoSave', e.target.checked)}
-              className="toggle" 
+              onChange={(e) => handlePreferenceChange("autoSave", e.target.checked)}
+              className="toggle"
             />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm text-gray-700">{t('autoBackup')}</label>
-              <p className="text-xs text-gray-500">{t('autoBackupDescription')}</p>
+              <label className="text-sm text-gray-700">{t("autoBackup")}</label>
+              <p className="text-xs text-gray-500">{t("autoBackupDescription")}</p>
             </div>
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={uiState.preferences.autoBackup}
-              onChange={(e) => handlePreferenceChange('autoBackup', e.target.checked)}
-              className="toggle" 
+              onChange={(e) => handlePreferenceChange("autoBackup", e.target.checked)}
+              className="toggle"
             />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm text-gray-700">{t('checkUpdates')}</label>
-              <p className="text-xs text-gray-500">{t('checkUpdatesDescription')}</p>
+              <label className="text-sm text-gray-700">{t("checkUpdates")}</label>
+              <p className="text-xs text-gray-500">{t("checkUpdatesDescription")}</p>
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
@@ -105,10 +105,10 @@ export default function SettingsModal() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-700 mb-1">Default zoom level</label>
-            <select 
+            <select
               className="input w-full"
               value={uiState.preferences.defaultZoom}
-              onChange={(e) => handlePreferenceChange('defaultZoom', parseInt(e.target.value))}
+              onChange={(e) => handlePreferenceChange("defaultZoom", parseInt(e.target.value))}
             >
               <option value="50">50%</option>
               <option value="75">75%</option>
@@ -118,13 +118,15 @@ export default function SettingsModal() {
               <option value="200">200%</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">Default page layout</label>
-            <select 
+            <select
               className="input w-full"
               value={uiState.preferences.pageLayout}
-              onChange={(e) => handlePreferenceChange('pageLayout', e.target.value as 'single' | 'continuous' | 'facing')}
+              onChange={(e) =>
+                handlePreferenceChange("pageLayout", e.target.value as "single" | "continuous" | "facing")
+              }
             >
               <option value="single">Single page</option>
               <option value="continuous">Continuous</option>
@@ -135,7 +137,7 @@ export default function SettingsModal() {
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderDisplaySettings = () => (
     <div className="space-y-6">
@@ -143,35 +145,29 @@ export default function SettingsModal() {
         <h3 className="text-sm font-medium text-gray-900 mb-3">Theme</h3>
         <div className="grid grid-cols-3 gap-3">
           <button
-            onClick={() => handleThemeChange('light')}
+            onClick={() => handleThemeChange("light")}
             className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
-              uiState.theme === 'light'
-                ? 'border-adobe-blue bg-adobe-blue/5'
-                : 'border-gray-200 hover:border-gray-300'
+              uiState.theme === "light" ? "border-adobe-blue bg-adobe-blue/5" : "border-gray-200 hover:border-gray-300"
             }`}
           >
             <SunIcon className="w-6 h-6 text-gray-600" />
             <span className="text-sm">Light</span>
           </button>
-          
+
           <button
-            onClick={() => handleThemeChange('dark')}
+            onClick={() => handleThemeChange("dark")}
             className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
-              uiState.theme === 'dark'
-                ? 'border-adobe-blue bg-adobe-blue/5'
-                : 'border-gray-200 hover:border-gray-300'
+              uiState.theme === "dark" ? "border-adobe-blue bg-adobe-blue/5" : "border-gray-200 hover:border-gray-300"
             }`}
           >
             <MoonIcon className="w-6 h-6 text-gray-600" />
             <span className="text-sm">Dark</span>
           </button>
-          
+
           <button
-            onClick={() => handleThemeChange('auto')}
+            onClick={() => handleThemeChange("auto")}
             className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
-              uiState.theme === 'auto'
-                ? 'border-adobe-blue bg-adobe-blue/5'
-                : 'border-gray-200 hover:border-gray-300'
+              uiState.theme === "auto" ? "border-adobe-blue bg-adobe-blue/5" : "border-gray-200 hover:border-gray-300"
             }`}
           >
             <ComputerDesktopIcon className="w-6 h-6 text-gray-600" />
@@ -188,33 +184,33 @@ export default function SettingsModal() {
               <label className="text-sm text-gray-700">Show toolbar labels</label>
               <p className="text-xs text-gray-500">Display text labels on toolbar buttons</p>
             </div>
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={uiState.preferences.showToolbarLabels}
-              onChange={(e) => handlePreferenceChange('showToolbarLabels', e.target.checked)}
-              className="toggle" 
+              onChange={(e) => handlePreferenceChange("showToolbarLabels", e.target.checked)}
+              className="toggle"
             />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Compact sidebar</label>
               <p className="text-xs text-gray-500">Use smaller sidebar panels</p>
             </div>
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={uiState.preferences.compactSidebar}
-              onChange={(e) => handlePreferenceChange('compactSidebar', e.target.checked)}
-              className="toggle" 
+              onChange={(e) => handlePreferenceChange("compactSidebar", e.target.checked)}
+              className="toggle"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">UI scale</label>
-            <select 
+            <select
               className="input w-full"
               value={uiState.preferences.uiScale}
-              onChange={(e) => handlePreferenceChange('uiScale', parseInt(e.target.value))}
+              onChange={(e) => handlePreferenceChange("uiScale", parseInt(e.target.value))}
             >
               <option value="90">90%</option>
               <option value="100">100%</option>
@@ -234,11 +230,11 @@ export default function SettingsModal() {
             <p className="text-xs text-gray-500 mb-3">Choose how toolbar buttons are displayed</p>
             <div className="grid grid-cols-3 gap-3">
               <button
-                onClick={() => uiDispatch({ type: 'SET_VIEW_MODE', payload: 'minimal' })}
+                onClick={() => uiDispatch({ type: "SET_VIEW_MODE", payload: "minimal" })}
                 className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
-                  uiState.viewMode === 'minimal'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 hover:border-gray-300'
+                  uiState.viewMode === "minimal"
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-gray-200 hover:border-gray-300"
                 }`}
               >
                 <div className="w-6 h-6 border border-gray-400 rounded flex items-center justify-center">
@@ -247,13 +243,13 @@ export default function SettingsModal() {
                 <span className="text-sm font-medium">Minimal</span>
                 <span className="text-xs text-gray-500 text-center">Icons only</span>
               </button>
-              
+
               <button
-                onClick={() => uiDispatch({ type: 'SET_VIEW_MODE', payload: 'hover' })}
+                onClick={() => uiDispatch({ type: "SET_VIEW_MODE", payload: "hover" })}
                 className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
-                  uiState.viewMode === 'hover'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 hover:border-gray-300'
+                  uiState.viewMode === "hover"
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-gray-200 hover:border-gray-300"
                 }`}
               >
                 <div className="relative">
@@ -265,13 +261,13 @@ export default function SettingsModal() {
                 <span className="text-sm font-medium">Hover</span>
                 <span className="text-xs text-gray-500 text-center">Tooltips on hover</span>
               </button>
-              
+
               <button
-                onClick={() => uiDispatch({ type: 'SET_VIEW_MODE', payload: 'expanded' })}
+                onClick={() => uiDispatch({ type: "SET_VIEW_MODE", payload: "expanded" })}
                 className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
-                  uiState.viewMode === 'expanded'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 hover:border-gray-300'
+                  uiState.viewMode === "expanded"
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-gray-200 hover:border-gray-300"
                 }`}
               >
                 <div className="flex flex-col items-center space-y-1">
@@ -288,7 +284,7 @@ export default function SettingsModal() {
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderEditingSettings = () => (
     <div className="space-y-6">
@@ -298,30 +294,26 @@ export default function SettingsModal() {
           <div>
             <label className="block text-sm text-gray-700 mb-1">Default highlight color</label>
             <div className="flex space-x-2">
-              {['#fbbf24', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6'].map(color => (
+              {["#fbbf24", "#ef4444", "#10b981", "#3b82f6", "#8b5cf6"].map((color) => (
                 <button
                   key={color}
-                  onClick={() => handlePreferenceChange('defaultHighlightColor', color)}
+                  onClick={() => handlePreferenceChange("defaultHighlightColor", color)}
                   className={`w-8 h-8 rounded border-2 transition-colors ${
                     uiState.preferences.defaultHighlightColor === color
-                      ? 'border-adobe-blue border-4'
-                      : 'border-gray-300 hover:border-gray-400'
+                      ? "border-adobe-blue border-4"
+                      : "border-gray-300 hover:border-gray-400"
                   }`}
                   style={{ backgroundColor: color }}
                 />
               ))}
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">Default author name</label>
-            <input 
-              type="text" 
-              defaultValue="Mohammad Fahad Alghammas"
-              className="input w-full" 
-            />
+            <input type="text" defaultValue="Mohammad Fahad Alghammas" className="input w-full" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Auto-select annotation tool</label>
@@ -344,7 +336,7 @@ export default function SettingsModal() {
               <option value="arial">Arial</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">Default font size</label>
             <select className="input w-full">
@@ -358,7 +350,7 @@ export default function SettingsModal() {
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderSecuritySettings = () => (
     <div className="space-y-6">
@@ -372,7 +364,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Verify signatures on open</label>
@@ -380,7 +372,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">Default signature appearance</label>
             <select className="input w-full">
@@ -403,7 +395,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Disable telemetry</label>
@@ -414,7 +406,7 @@ export default function SettingsModal() {
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderAdvancedSettings = () => (
     <div className="space-y-6">
@@ -423,15 +415,9 @@ export default function SettingsModal() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-700 mb-1">Memory usage limit (MB)</label>
-            <input 
-              type="number" 
-              defaultValue="512"
-              min="256"
-              max="2048"
-              className="input w-full" 
-            />
+            <input type="number" defaultValue="512" min="256" max="2048" className="input w-full" />
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">Page cache size</label>
             <select className="input w-full">
@@ -441,7 +427,7 @@ export default function SettingsModal() {
               <option value="50">50 pages</option>
             </select>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Hardware acceleration</label>
@@ -462,7 +448,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Show developer tools</label>
@@ -473,7 +459,7 @@ export default function SettingsModal() {
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderWorkspaceSettings = () => (
     <div className="space-y-6">
@@ -487,7 +473,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Floating toolbar</label>
@@ -495,7 +481,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" className="toggle" />
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">Toolbar position</label>
             <select className="input w-full">
@@ -505,7 +491,7 @@ export default function SettingsModal() {
               <option value="right">Right</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm text-gray-700 mb-1">Toolbar size</label>
             <select className="input w-full">
@@ -536,7 +522,7 @@ export default function SettingsModal() {
               </button>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Remember window size</label>
@@ -544,7 +530,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Auto-hide panels</label>
@@ -556,99 +542,99 @@ export default function SettingsModal() {
       </div>
 
       <div>
-         <h3 className="text-sm font-medium text-gray-900 mb-3">Color Schemes</h3>
-         <div className="space-y-4">
-           <div className="grid grid-cols-3 gap-3">
-             <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
-               <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded mb-2"></div>
-               <span className="text-xs">Professional</span>
-             </button>
-             <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
-               <div className="w-full h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded mb-2"></div>
-               <span className="text-xs">Nature</span>
-             </button>
-             <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
-               <div className="w-full h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded mb-2"></div>
-               <span className="text-xs">Warm</span>
-             </button>
-           </div>
-           
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Custom accent color</label>
-             <input type="color" defaultValue="#0066cc" className="w-full h-10 rounded border" />
-           </div>
-         </div>
-       </div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Color Schemes</h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
+              <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded mb-2"></div>
+              <span className="text-xs">Professional</span>
+            </button>
+            <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
+              <div className="w-full h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded mb-2"></div>
+              <span className="text-xs">Nature</span>
+            </button>
+            <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
+              <div className="w-full h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded mb-2"></div>
+              <span className="text-xs">Warm</span>
+            </button>
+          </div>
 
-       <div>
-         <h3 className="text-sm font-medium text-gray-900 mb-3">PDF Styling</h3>
-         <div className="space-y-4">
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Page background color</label>
-             <input type="color" defaultValue="#ffffff" className="w-full h-10 rounded border" />
-           </div>
-           
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Page border color</label>
-             <input type="color" defaultValue="#e2e8f0" className="w-full h-10 rounded border" />
-           </div>
-           
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Page shadow intensity</label>
-             <input type="range" min="0" max="100" defaultValue="20" className="w-full" />
-           </div>
-           
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Page spacing</label>
-             <select className="input w-full">
-               <option value="compact">Compact</option>
-               <option value="normal">Normal</option>
-               <option value="comfortable">Comfortable</option>
-               <option value="spacious">Spacious</option>
-             </select>
-           </div>
-         </div>
-       </div>
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Custom accent color</label>
+            <input type="color" defaultValue="#0066cc" className="w-full h-10 rounded border" />
+          </div>
+        </div>
+      </div>
 
-       <div>
-         <h3 className="text-sm font-medium text-gray-900 mb-3">Component Styling</h3>
-         <div className="space-y-4">
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Toolbar style</label>
-             <div className="grid grid-cols-2 gap-3">
-               <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
-                 <div className="w-full h-6 bg-white border rounded mb-2"></div>
-                 <span className="text-xs">Minimal</span>
-               </button>
-               <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
-                 <div className="w-full h-6 bg-gray-100 rounded mb-2"></div>
-                 <span className="text-xs">Classic</span>
-               </button>
-             </div>
-           </div>
-           
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Button style</label>
-             <select className="input w-full">
-               <option value="rounded">Rounded</option>
-               <option value="square">Square</option>
-               <option value="pill">Pill</option>
-               <option value="minimal">Minimal</option>
-             </select>
-           </div>
-           
-           <div>
-             <label className="block text-sm text-gray-700 mb-1">Icon style</label>
-             <select className="input w-full">
-               <option value="outline">Outline</option>
-               <option value="solid">Solid</option>
-               <option value="duotone">Duotone</option>
-             </select>
-           </div>
-         </div>
-       </div>
+      <div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">PDF Styling</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Page background color</label>
+            <input type="color" defaultValue="#ffffff" className="w-full h-10 rounded border" />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Page border color</label>
+            <input type="color" defaultValue="#e2e8f0" className="w-full h-10 rounded border" />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Page shadow intensity</label>
+            <input type="range" min="0" max="100" defaultValue="20" className="w-full" />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Page spacing</label>
+            <select className="input w-full">
+              <option value="compact">Compact</option>
+              <option value="normal">Normal</option>
+              <option value="comfortable">Comfortable</option>
+              <option value="spacious">Spacious</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Component Styling</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Toolbar style</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
+                <div className="w-full h-6 bg-white border rounded mb-2"></div>
+                <span className="text-xs">Minimal</span>
+              </button>
+              <button className="p-3 border rounded-lg text-center hover:bg-gray-50">
+                <div className="w-full h-6 bg-gray-100 rounded mb-2"></div>
+                <span className="text-xs">Classic</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Button style</label>
+            <select className="input w-full">
+              <option value="rounded">Rounded</option>
+              <option value="square">Square</option>
+              <option value="pill">Pill</option>
+              <option value="minimal">Minimal</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Icon style</label>
+            <select className="input w-full">
+              <option value="outline">Outline</option>
+              <option value="solid">Solid</option>
+              <option value="duotone">Duotone</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 
   const renderComponentsSettings = () => (
     <div className="space-y-6">
@@ -662,7 +648,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Show bookmarks panel</label>
@@ -670,7 +656,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Show annotations panel</label>
@@ -678,7 +664,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Show search panel</label>
@@ -699,7 +685,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Page navigation</label>
@@ -707,7 +693,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">View mode selector</label>
@@ -715,7 +701,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Annotation tools</label>
@@ -736,7 +722,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Zoom level indicator</label>
@@ -744,7 +730,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Selection info</label>
@@ -765,7 +751,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Image context menu</label>
@@ -773,7 +759,7 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" defaultChecked className="toggle" />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm text-gray-700">Link context menu</label>
@@ -784,7 +770,7 @@ export default function SettingsModal() {
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderShortcutsSettings = () => (
     <div className="space-y-6">
@@ -864,48 +850,45 @@ export default function SettingsModal() {
             </div>
             <input type="checkbox" className="toggle" />
           </div>
-          
+
           <button className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
             Customize Shortcuts...
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'general':
-        return renderGeneralSettings()
-      case 'display':
-        return renderDisplaySettings()
-      case 'editing':
-        return renderEditingSettings()
-      case 'workspace':
-        return renderWorkspaceSettings()
-      case 'components':
-        return renderComponentsSettings()
-      case 'shortcuts':
-        return renderShortcutsSettings()
-      case 'security':
-        return renderSecuritySettings()
-      case 'advanced':
-        return renderAdvancedSettings()
+      case "general":
+        return renderGeneralSettings();
+      case "display":
+        return renderDisplaySettings();
+      case "editing":
+        return renderEditingSettings();
+      case "workspace":
+        return renderWorkspaceSettings();
+      case "components":
+        return renderComponentsSettings();
+      case "shortcuts":
+        return renderShortcutsSettings();
+      case "security":
+        return renderSecuritySettings();
+      case "advanced":
+        return renderAdvancedSettings();
       default:
-        return renderGeneralSettings()
+        return renderGeneralSettings();
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{t('settings')}</h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <h2 className="text-xl font-semibold text-gray-900">{t("settings")}</h2>
+          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
@@ -920,9 +903,7 @@ export default function SettingsModal() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-adobe-blue text-white'
-                      : 'text-gray-700 hover:bg-gray-200'
+                    activeTab === tab.id ? "bg-adobe-blue text-white" : "text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   {tab.label}
@@ -932,9 +913,7 @@ export default function SettingsModal() {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 overflow-y-auto p-6">
-            {renderTabContent()}
-          </div>
+          <div className="flex-1 overflow-y-auto p-6">{renderTabContent()}</div>
         </div>
 
         {/* Footer */}
@@ -948,7 +927,7 @@ export default function SettingsModal() {
           <button
             onClick={() => {
               // TODO: Save settings
-              closeModal()
+              closeModal();
             }}
             className="px-4 py-2 bg-adobe-blue text-white rounded-lg hover:bg-adobe-blue-dark transition-colors"
           >
@@ -957,5 +936,5 @@ export default function SettingsModal() {
         </div>
       </div>
     </div>
-  )
+  );
 }

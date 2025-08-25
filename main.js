@@ -1,6 +1,6 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
-const path = require('path');
-const isDev = process.env.NODE_ENV === 'development';
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require("electron");
+const path = require("path");
+const isDev = process.env.NODE_ENV === "development";
 
 let mainWindow;
 
@@ -15,25 +15,23 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.js'),
-      webSecurity: true
+      preload: path.join(__dirname, "preload.js"),
+      webSecurity: true,
     },
-    icon: path.join(__dirname, 'assets/icon.png'),
-    titleBarStyle: 'default',
-    show: false
+    icon: path.join(__dirname, "assets/icon.png"),
+    titleBarStyle: "default",
+    show: false,
   });
 
   // Load the app
-  const startUrl = isDev 
-    ? 'http://localhost:3000' 
-    : `file://${path.join(__dirname, './out/index.html')}`;
-  
+  const startUrl = isDev ? "http://localhost:3000" : `file://${path.join(__dirname, "./out/index.html")}`;
+
   mainWindow.loadURL(startUrl);
 
   // Show window when ready to prevent visual flash
-  mainWindow.once('ready-to-show', () => {
+  mainWindow.once("ready-to-show", () => {
     mainWindow.show();
-    
+
     // Open DevTools in development
     if (isDev) {
       mainWindow.webContents.openDevTools();
@@ -41,14 +39,14 @@ function createWindow() {
   });
 
   // Handle window closed
-  mainWindow.on('closed', () => {
+  mainWindow.on("closed", () => {
     mainWindow = null;
   });
 
   // Handle external links
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
-    return { action: 'deny' };
+    return { action: "deny" };
   });
 }
 
@@ -57,61 +55,61 @@ app.whenReady().then(() => {
   createWindow();
   createMenu();
 
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
   });
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
 // Security: Prevent new window creation
-app.on('web-contents-created', (event, contents) => {
-  contents.on('new-window', (event, navigationUrl) => {
+app.on("web-contents-created", (event, contents) => {
+  contents.on("new-window", (event, navigationUrl) => {
     event.preventDefault();
     shell.openExternal(navigationUrl);
   });
 });
 
 // IPC handlers
-ipcMain.handle('show-open-dialog', async (event, options) => {
+ipcMain.handle("show-open-dialog", async (event, options) => {
   const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openFile'],
+    properties: ["openFile"],
     filters: [
-      { name: 'PDF Files', extensions: ['pdf'] },
-      { name: 'All Files', extensions: ['*'] }
+      { name: "PDF Files", extensions: ["pdf"] },
+      { name: "All Files", extensions: ["*"] },
     ],
-    ...options
+    ...options,
   });
   return result;
 });
 
-ipcMain.handle('show-save-dialog', async (event, options) => {
+ipcMain.handle("show-save-dialog", async (event, options) => {
   const result = await dialog.showSaveDialog(mainWindow, {
     filters: [
-      { name: 'PDF Files', extensions: ['pdf'] },
-      { name: 'All Files', extensions: ['*'] }
+      { name: "PDF Files", extensions: ["pdf"] },
+      { name: "All Files", extensions: ["*"] },
     ],
-    ...options
+    ...options,
   });
   return result;
 });
 
-ipcMain.handle('show-message-box', async (event, options) => {
+ipcMain.handle("show-message-box", async (event, options) => {
   const result = await dialog.showMessageBox(mainWindow, options);
   return result;
 });
 
-ipcMain.handle('get-app-version', () => {
+ipcMain.handle("get-app-version", () => {
   return app.getVersion();
 });
 
-ipcMain.handle('get-app-path', (event, name) => {
+ipcMain.handle("get-app-path", (event, name) => {
   return app.getPath(name);
 });
 
@@ -119,130 +117,130 @@ ipcMain.handle('get-app-path', (event, name) => {
 function createMenu() {
   const template = [
     {
-      label: 'File',
+      label: "File",
       submenu: [
         {
-          label: 'Open PDF',
-          accelerator: 'CmdOrCtrl+O',
+          label: "Open PDF",
+          accelerator: "CmdOrCtrl+O",
           click: () => {
-            mainWindow.webContents.send('menu-open-file');
-          }
+            mainWindow.webContents.send("menu-open-file");
+          },
         },
         {
-          label: 'New PDF',
-          accelerator: 'CmdOrCtrl+N',
+          label: "New PDF",
+          accelerator: "CmdOrCtrl+N",
           click: () => {
-            mainWindow.webContents.send('menu-new-file');
-          }
+            mainWindow.webContents.send("menu-new-file");
+          },
         },
-        { type: 'separator' },
+        { type: "separator" },
         {
-          label: 'Save',
-          accelerator: 'CmdOrCtrl+S',
+          label: "Save",
+          accelerator: "CmdOrCtrl+S",
           click: () => {
-            mainWindow.webContents.send('menu-save-file');
-          }
+            mainWindow.webContents.send("menu-save-file");
+          },
         },
         {
-          label: 'Save As',
-          accelerator: 'CmdOrCtrl+Shift+S',
+          label: "Save As",
+          accelerator: "CmdOrCtrl+Shift+S",
           click: () => {
-            mainWindow.webContents.send('menu-save-as-file');
-          }
+            mainWindow.webContents.send("menu-save-as-file");
+          },
         },
-        { type: 'separator' },
+        { type: "separator" },
         {
-          label: 'Exit',
-          accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+          label: "Exit",
+          accelerator: process.platform === "darwin" ? "Cmd+Q" : "Ctrl+Q",
           click: () => {
             app.quit();
-          }
-        }
-      ]
+          },
+        },
+      ],
     },
     {
-      label: 'Edit',
+      label: "Edit",
       submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectall' }
-      ]
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        { role: "selectall" },
+      ],
     },
     {
-      label: 'View',
+      label: "View",
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
+        { role: "reload" },
+        { role: "forceReload" },
+        { role: "toggleDevTools" },
+        { type: "separator" },
+        { role: "resetZoom" },
+        { role: "zoomIn" },
+        { role: "zoomOut" },
+        { type: "separator" },
+        { role: "togglefullscreen" },
+      ],
     },
     {
-      label: 'Tools',
+      label: "Tools",
       submenu: [
         {
-          label: 'Merge PDFs',
+          label: "Merge PDFs",
           click: () => {
-            mainWindow.webContents.send('menu-merge-pdfs');
-          }
+            mainWindow.webContents.send("menu-merge-pdfs");
+          },
         },
         {
-          label: 'Split PDF',
+          label: "Split PDF",
           click: () => {
-            mainWindow.webContents.send('menu-split-pdf');
-          }
+            mainWindow.webContents.send("menu-split-pdf");
+          },
         },
         {
-          label: 'Sign Document',
+          label: "Sign Document",
           click: () => {
-            mainWindow.webContents.send('menu-sign-document');
-          }
-        }
-      ]
+            mainWindow.webContents.send("menu-sign-document");
+          },
+        },
+      ],
     },
     {
-      label: 'Help',
+      label: "Help",
       submenu: [
         {
-          label: 'About PDF Vision',
+          label: "About PDF Vision",
           click: () => {
-            mainWindow.webContents.send('menu-show-about');
-          }
+            mainWindow.webContents.send("menu-show-about");
+          },
         },
         {
-          label: 'Visit MF Visions',
+          label: "Visit MF Visions",
           click: () => {
-            shell.openExternal('https://mfvisions.com');
-          }
-        }
-      ]
-    }
+            shell.openExternal("https://mfvisions.com");
+          },
+        },
+      ],
+    },
   ];
 
   // macOS specific menu adjustments
-  if (process.platform === 'darwin') {
+  if (process.platform === "darwin") {
     template.unshift({
       label: app.getName(),
       submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'services' },
-        { type: 'separator' },
-        { role: 'hide' },
-        { role: 'hideOthers' },
-        { role: 'unhide' },
-        { type: 'separator' },
-        { role: 'quit' }
-      ]
+        { role: "about" },
+        { type: "separator" },
+        { role: "services" },
+        { type: "separator" },
+        { role: "hide" },
+        { role: "hideOthers" },
+        { role: "unhide" },
+        { type: "separator" },
+        { role: "quit" },
+      ],
     });
   }
 
@@ -251,11 +249,11 @@ function createMenu() {
 }
 
 // Prevent navigation to external websites
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (event, navigationUrl) => {
+app.on("web-contents-created", (event, contents) => {
+  contents.on("will-navigate", (event, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl);
-    
-    if (parsedUrl.origin !== 'http://localhost:3000' && !navigationUrl.startsWith('file://')) {
+
+    if (parsedUrl.origin !== "http://localhost:3000" && !navigationUrl.startsWith("file://")) {
       event.preventDefault();
     }
   });

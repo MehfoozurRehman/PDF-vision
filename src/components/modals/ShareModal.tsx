@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Modal, Card, Badge, Switch, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui'
+import React, { useState } from "react";
+import { Modal, Card, Badge, Switch, Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui";
 import {
   LinkIcon,
   EnvelopeIcon,
@@ -12,117 +12,115 @@ import {
   EyeIcon,
   PencilIcon,
   ChatBubbleLeftRightIcon,
-  CheckIcon
-} from '@heroicons/react/24/outline'
-import { cn } from '@/lib/utils'
+  CheckIcon,
+} from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 
 interface ShareModalProps {
-  isOpen: boolean
-  onClose: () => void
-  documentName: string
-  documentId: string
+  isOpen: boolean;
+  onClose: () => void;
+  documentName: string;
+  documentId: string;
 }
 
 interface ShareSettings {
-  allowDownload: boolean
-  allowPrint: boolean
-  allowCopy: boolean
-  requirePassword: boolean
-  password: string
-  expirationDate: string
-  accessLevel: 'view' | 'comment' | 'edit'
-  trackViews: boolean
-  watermark: boolean
+  allowDownload: boolean;
+  allowPrint: boolean;
+  allowCopy: boolean;
+  requirePassword: boolean;
+  password: string;
+  expirationDate: string;
+  accessLevel: "view" | "comment" | "edit";
+  trackViews: boolean;
+  watermark: boolean;
 }
 
 interface Collaborator {
-  id: string
-  email: string
-  name: string
-  accessLevel: 'view' | 'comment' | 'edit'
-  status: 'pending' | 'accepted' | 'declined'
-  addedAt: Date
+  id: string;
+  email: string;
+  name: string;
+  accessLevel: "view" | "comment" | "edit";
+  status: "pending" | "accepted" | "declined";
+  addedAt: Date;
 }
 
 export default function ShareModal({ isOpen, onClose, documentName, documentId }: ShareModalProps) {
-  const [activeTab, setActiveTab] = useState('link')
+  const [activeTab, setActiveTab] = useState("link");
   const [shareSettings, setShareSettings] = useState<ShareSettings>({
     allowDownload: true,
     allowPrint: true,
     allowCopy: false,
     requirePassword: false,
-    password: '',
-    expirationDate: '',
-    accessLevel: 'view',
+    password: "",
+    expirationDate: "",
+    accessLevel: "view",
     trackViews: true,
-    watermark: false
-  })
-  const [collaborators, setCollaborators] = useState<Collaborator[]>([])
-  const [newCollaboratorEmail, setNewCollaboratorEmail] = useState('')
-  const [shareLink, setShareLink] = useState('')
-  const [linkCopied, setLinkCopied] = useState(false)
+    watermark: false,
+  });
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [newCollaboratorEmail, setNewCollaboratorEmail] = useState("");
+  const [shareLink, setShareLink] = useState("");
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const generateShareLink = () => {
-    const baseUrl = window.location.origin
+    const baseUrl = window.location.origin;
     const params = new URLSearchParams({
       doc: documentId,
       access: shareSettings.accessLevel,
-      ...(shareSettings.requirePassword && { protected: 'true' }),
-      ...(shareSettings.expirationDate && { expires: shareSettings.expirationDate })
-    })
-    return `${baseUrl}/shared?${params.toString()}`
-  }
+      ...(shareSettings.requirePassword && { protected: "true" }),
+      ...(shareSettings.expirationDate && { expires: shareSettings.expirationDate }),
+    });
+    return `${baseUrl}/shared?${params.toString()}`;
+  };
 
   const handleCopyLink = async () => {
-    const link = generateShareLink()
-    setShareLink(link)
-    
+    const link = generateShareLink();
+    setShareLink(link);
+
     try {
-      await navigator.clipboard.writeText(link)
-      setLinkCopied(true)
-      setTimeout(() => setLinkCopied(false), 2000)
+      await navigator.clipboard.writeText(link);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy link:', error)
+      console.error("Failed to copy link:", error);
     }
-  }
+  };
 
   const handleAddCollaborator = () => {
-    if (!newCollaboratorEmail.trim()) return
-    
+    if (!newCollaboratorEmail.trim()) return;
+
     const newCollaborator: Collaborator = {
       id: Date.now().toString(),
       email: newCollaboratorEmail,
-      name: newCollaboratorEmail.split('@')[0],
+      name: newCollaboratorEmail.split("@")[0],
       accessLevel: shareSettings.accessLevel,
-      status: 'pending',
-      addedAt: new Date()
-    }
-    
-    setCollaborators([...collaborators, newCollaborator])
-    setNewCollaboratorEmail('')
-  }
+      status: "pending",
+      addedAt: new Date(),
+    };
+
+    setCollaborators([...collaborators, newCollaborator]);
+    setNewCollaboratorEmail("");
+  };
 
   const handleRemoveCollaborator = (id: string) => {
-    setCollaborators(collaborators.filter(c => c.id !== id))
-  }
+    setCollaborators(collaborators.filter((c) => c.id !== id));
+  };
 
-  const handleUpdateCollaboratorAccess = (id: string, accessLevel: 'view' | 'comment' | 'edit') => {
-    setCollaborators(collaborators.map(c => 
-      c.id === id ? { ...c, accessLevel } : c
-    ))
-  }
+  const handleUpdateCollaboratorAccess = (id: string, accessLevel: "view" | "comment" | "edit") => {
+    setCollaborators(collaborators.map((c) => (c.id === id ? { ...c, accessLevel } : c)));
+  };
 
   const accessLevelIcons = {
     view: EyeIcon,
     comment: ChatBubbleLeftRightIcon,
-    edit: PencilIcon
-  }
+    edit: PencilIcon,
+  };
 
   const accessLevelColors = {
-    view: 'bg-blue-100 text-blue-800',
-    comment: 'bg-yellow-100 text-yellow-800',
-    edit: 'bg-green-100 text-green-800'
-  }
+    view: "bg-blue-100 text-blue-800",
+    comment: "bg-yellow-100 text-yellow-800",
+    edit: "bg-green-100 text-green-800",
+  };
 
   return (
     <Modal
@@ -159,7 +157,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                     Secure
                   </Badge>
                 </div>
-                
+
                 <div className="flex space-x-2">
                   <input
                     type="text"
@@ -171,10 +169,8 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                   <button
                     onClick={handleCopyLink}
                     className={cn(
-                      'btn px-4 py-2 transition-all duration-200',
-                      linkCopied
-                        ? 'btn-success'
-                        : 'btn-primary'
+                      "btn px-4 py-2 transition-all duration-200",
+                      linkCopied ? "btn-success" : "btn-primary",
                     )}
                   >
                     {linkCopied ? (
@@ -198,7 +194,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
             <Card padding="lg">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Invite by Email</h3>
-                
+
                 <div className="flex space-x-2">
                   <input
                     type="email"
@@ -206,7 +202,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                     onChange={(e) => setNewCollaboratorEmail(e.target.value)}
                     placeholder="Enter email address"
                     className="input flex-1"
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddCollaborator()}
+                    onKeyPress={(e) => e.key === "Enter" && handleAddCollaborator()}
                   />
                   <button
                     onClick={handleAddCollaborator}
@@ -225,7 +221,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
             <Card padding="lg">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Collaborators ({collaborators.length})</h3>
-                
+
                 {collaborators.length === 0 ? (
                   <div className="text-center py-8 text-neutral-500">
                     <UserGroupIcon className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
@@ -235,9 +231,12 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                 ) : (
                   <div className="space-y-3">
                     {collaborators.map((collaborator) => {
-                      const AccessIcon = accessLevelIcons[collaborator.accessLevel]
+                      const AccessIcon = accessLevelIcons[collaborator.accessLevel];
                       return (
-                        <div key={collaborator.id} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                        <div
+                          key={collaborator.id}
+                          className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
+                        >
                           <div className="flex items-center space-x-3">
                             <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                               <span className="text-sm font-medium text-primary-700">
@@ -249,28 +248,27 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                               <p className="text-sm text-neutral-500">{collaborator.email}</p>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center space-x-2">
-                            <Badge 
-                              variant={collaborator.status === 'accepted' ? 'success' : 'warning'}
-                              size="sm"
-                            >
+                            <Badge variant={collaborator.status === "accepted" ? "success" : "warning"} size="sm">
                               {collaborator.status}
                             </Badge>
-                            
+
                             <select
                               value={collaborator.accessLevel}
-                              onChange={(e) => handleUpdateCollaboratorAccess(
-                                collaborator.id, 
-                                e.target.value as 'view' | 'comment' | 'edit'
-                              )}
+                              onChange={(e) =>
+                                handleUpdateCollaboratorAccess(
+                                  collaborator.id,
+                                  e.target.value as "view" | "comment" | "edit",
+                                )
+                              }
                               className="input input-sm w-24"
                             >
                               <option value="view">View</option>
                               <option value="comment">Comment</option>
                               <option value="edit">Edit</option>
                             </select>
-                            
+
                             <button
                               onClick={() => handleRemoveCollaborator(collaborator.id)}
                               className="text-red-500 hover:text-red-700 p-1"
@@ -279,7 +277,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                             </button>
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 )}
@@ -295,7 +293,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
               <ShieldCheckIcon className="w-5 h-5 mr-2" />
               Security & Permissions
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
                 <Switch
@@ -304,14 +302,14 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                   label="Allow Download"
                   description="Recipients can download the PDF"
                 />
-                
+
                 <Switch
                   checked={shareSettings.allowPrint}
                   onChange={(checked) => setShareSettings({ ...shareSettings, allowPrint: checked })}
                   label="Allow Printing"
                   description="Recipients can print the document"
                 />
-                
+
                 <Switch
                   checked={shareSettings.allowCopy}
                   onChange={(checked) => setShareSettings({ ...shareSettings, allowCopy: checked })}
@@ -319,7 +317,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                   description="Recipients can copy text content"
                 />
               </div>
-              
+
               <div className="space-y-3">
                 <Switch
                   checked={shareSettings.requirePassword}
@@ -327,7 +325,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                   label="Password Protection"
                   description="Require password to access"
                 />
-                
+
                 {shareSettings.requirePassword && (
                   <input
                     type="password"
@@ -337,14 +335,14 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                     className="input"
                   />
                 )}
-                
+
                 <Switch
                   checked={shareSettings.trackViews}
                   onChange={(checked) => setShareSettings({ ...shareSettings, trackViews: checked })}
                   label="Track Views"
                   description="Monitor who views the document"
                 />
-                
+
                 <Switch
                   checked={shareSettings.watermark}
                   onChange={(checked) => setShareSettings({ ...shareSettings, watermark: checked })}
@@ -353,7 +351,7 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
                 />
               </div>
             </div>
-            
+
             <div className="pt-4 border-t border-neutral-200">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
                 <ClockIcon className="w-4 h-4 inline mr-1" />
@@ -381,5 +379,5 @@ export default function ShareModal({ isOpen, onClose, documentName, documentId }
         </div>
       </div>
     </Modal>
-  )
+  );
 }

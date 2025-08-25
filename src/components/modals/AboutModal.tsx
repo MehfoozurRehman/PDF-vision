@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import { useUI } from '@/store/ui-store'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useUI } from "@/store/ui-store";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function AboutModal() {
-  const { state: uiState, dispatch: uiDispatch } = useUI()
+  const { state: uiState, dispatch: uiDispatch } = useUI();
 
-  if (!uiState.modals.about) return null
+  if (!uiState.modals.about) return null;
 
   const closeModal = () => {
-    uiDispatch({ type: 'CLOSE_MODAL', payload: 'about' })
-  }
+    uiDispatch({ type: "CLOSE_MODAL", payload: "about" });
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -18,10 +18,7 @@ export default function AboutModal() {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">About PDF Vision</h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
@@ -70,9 +67,9 @@ export default function AboutModal() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Website:</span>
-                  <a 
-                    href="https://MFvisions.com" 
-                    target="_blank" 
+                  <a
+                    href="https://MFvisions.com"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-adobe-blue hover:text-adobe-blue-dark transition-colors"
                   >
@@ -101,12 +98,8 @@ export default function AboutModal() {
 
             {/* Copyright */}
             <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center">
-                © 2024 MF Visions. All rights reserved.
-              </p>
-              <p className="text-xs text-gray-500 text-center mt-1">
-                Developed by Mohammad Fahad Alghammas
-              </p>
+              <p className="text-xs text-gray-500 text-center">© 2024 MF Visions. All rights reserved.</p>
+              <p className="text-xs text-gray-500 text-center mt-1">Developed by Mohammad Fahad Alghammas</p>
             </div>
           </div>
         </div>
@@ -122,5 +115,5 @@ export default function AboutModal() {
         </div>
       </div>
     </div>
-  )
+  );
 }

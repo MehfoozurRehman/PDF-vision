@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState, useRef } from 'react'
-import { Card, Modal, Badge, Dropdown } from '@/components/ui'
+import React, { useState, useRef } from "react";
+import { Card, Modal, Badge, Dropdown } from "@/components/ui";
 import {
   FolderIcon,
   FolderOpenIcon,
@@ -23,40 +23,40 @@ import {
   Squares2X2Icon,
   ListBulletIcon,
   FunnelIcon,
-  ArrowsUpDownIcon
-} from '@heroicons/react/24/outline'
-import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid'
-import { cn } from '@/lib/utils'
+  ArrowsUpDownIcon,
+} from "@heroicons/react/24/outline";
+import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
+import { cn } from "@/lib/utils";
 
 interface FileItem {
-  id: string
-  name: string
-  type: 'file' | 'folder'
-  size?: number
-  createdAt: Date
-  modifiedAt: Date
-  path: string
-  parentId?: string
-  tags: string[]
-  isFavorite: boolean
-  isProtected: boolean
-  thumbnail?: string
-  description?: string
+  id: string;
+  name: string;
+  type: "file" | "folder";
+  size?: number;
+  createdAt: Date;
+  modifiedAt: Date;
+  path: string;
+  parentId?: string;
+  tags: string[];
+  isFavorite: boolean;
+  isProtected: boolean;
+  thumbnail?: string;
+  description?: string;
 }
 
 interface FileManagerProps {
-  isVisible: boolean
-  onClose: () => void
-  onOpenFile: (file: FileItem) => void
-  onCreateFolder: (name: string, parentId?: string) => void
-  onUploadFiles: (files: File[], parentId?: string) => void
-  onDeleteItems: (itemIds: string[]) => void
-  onRenameItem: (itemId: string, newName: string) => void
-  onMoveItems: (itemIds: string[], targetFolderId: string) => void
-  onToggleFavorite: (itemId: string) => void
-  onAddTags: (itemId: string, tags: string[]) => void
-  files: FileItem[]
-  currentFolderId?: string
+  isVisible: boolean;
+  onClose: () => void;
+  onOpenFile: (file: FileItem) => void;
+  onCreateFolder: (name: string, parentId?: string) => void;
+  onUploadFiles: (files: File[], parentId?: string) => void;
+  onDeleteItems: (itemIds: string[]) => void;
+  onRenameItem: (itemId: string, newName: string) => void;
+  onMoveItems: (itemIds: string[], targetFolderId: string) => void;
+  onToggleFavorite: (itemId: string) => void;
+  onAddTags: (itemId: string, tags: string[]) => void;
+  files: FileItem[];
+  currentFolderId?: string;
 }
 
 export default function FileManager({
@@ -71,157 +71,149 @@ export default function FileManager({
   onToggleFavorite,
   onAddTags,
   files,
-  currentFolderId
+  currentFolderId,
 }: FileManagerProps) {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [sortBy, setSortBy] = useState<'name' | 'date' | 'size' | 'type'>('name')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedItems, setSelectedItems] = useState<string[]>([])
-  const [filterBy, setFilterBy] = useState<'all' | 'favorites' | 'recent' | 'protected'>('all')
-  const [showNewFolderModal, setShowNewFolderModal] = useState(false)
-  const [newFolderName, setNewFolderName] = useState('')
-  const [editingItem, setEditingItem] = useState<string | null>(null)
-  const [editingName, setEditingName] = useState('')
-  const [currentPath, setCurrentPath] = useState<string[]>(['Home'])
-  
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState<"name" | "date" | "size" | "type">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [filterBy, setFilterBy] = useState<"all" | "favorites" | "recent" | "protected">("all");
+  const [showNewFolderModal, setShowNewFolderModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [currentPath, setCurrentPath] = useState<string[]>(["Home"]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter and sort files
-  const currentFolderFiles = files.filter(file => file.parentId === currentFolderId)
-  
-  const filteredFiles = currentFolderFiles.filter(file => {
+  const currentFolderFiles = files.filter((file) => file.parentId === currentFolderId);
+
+  const filteredFiles = currentFolderFiles.filter((file) => {
     // Search filter
     if (searchQuery && !file.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false
+      return false;
     }
-    
+
     // Category filter
     switch (filterBy) {
-      case 'favorites':
-        return file.isFavorite
-      case 'recent':
-        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-        return file.modifiedAt > threeDaysAgo
-      case 'protected':
-        return file.isProtected
+      case "favorites":
+        return file.isFavorite;
+      case "recent":
+        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+        return file.modifiedAt > threeDaysAgo;
+      case "protected":
+        return file.isProtected;
       default:
-        return true
+        return true;
     }
-  })
+  });
 
   const sortedFiles = [...filteredFiles].sort((a, b) => {
-    let comparison = 0
-    
+    let comparison = 0;
+
     switch (sortBy) {
-      case 'name':
-        comparison = a.name.localeCompare(b.name)
-        break
-      case 'date':
-        comparison = a.modifiedAt.getTime() - b.modifiedAt.getTime()
-        break
-      case 'size':
-        comparison = (a.size || 0) - (b.size || 0)
-        break
-      case 'type':
-        comparison = a.type.localeCompare(b.type)
-        break
+      case "name":
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case "date":
+        comparison = a.modifiedAt.getTime() - b.modifiedAt.getTime();
+        break;
+      case "size":
+        comparison = (a.size || 0) - (b.size || 0);
+        break;
+      case "type":
+        comparison = a.type.localeCompare(b.type);
+        break;
     }
-    
-    return sortOrder === 'asc' ? comparison : -comparison
-  })
+
+    return sortOrder === "asc" ? comparison : -comparison;
+  });
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
+    const files = Array.from(event.target.files || []);
     if (files.length > 0) {
-      onUploadFiles(files, currentFolderId)
+      onUploadFiles(files, currentFolderId);
     }
     // Reset input
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
-      onCreateFolder(newFolderName.trim(), currentFolderId)
-      setNewFolderName('')
-      setShowNewFolderModal(false)
+      onCreateFolder(newFolderName.trim(), currentFolderId);
+      setNewFolderName("");
+      setShowNewFolderModal(false);
     }
-  }
+  };
 
   const handleRename = (itemId: string) => {
-    if (editingName.trim() && editingName !== files.find(f => f.id === itemId)?.name) {
-      onRenameItem(itemId, editingName.trim())
+    if (editingName.trim() && editingName !== files.find((f) => f.id === itemId)?.name) {
+      onRenameItem(itemId, editingName.trim());
     }
-    setEditingItem(null)
-    setEditingName('')
-  }
+    setEditingItem(null);
+    setEditingName("");
+  };
 
   const handleSelectItem = (itemId: string, isCtrlClick = false) => {
     if (isCtrlClick) {
-      setSelectedItems(prev => 
-        prev.includes(itemId) 
-          ? prev.filter(id => id !== itemId)
-          : [...prev, itemId]
-      )
+      setSelectedItems((prev) => (prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]));
     } else {
-      setSelectedItems([itemId])
+      setSelectedItems([itemId]);
     }
-  }
+  };
 
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return ''
-    const sizes = ['B', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(1024))
-    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`
-  }
+    if (!bytes) return "";
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+  };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
-  }
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
 
   const FileCard = ({ file }: { file: FileItem }) => {
-    const isSelected = selectedItems.includes(file.id)
-    const isEditing = editingItem === file.id
+    const isSelected = selectedItems.includes(file.id);
+    const isEditing = editingItem === file.id;
 
     return (
       <Card
         className={cn(
-          'transition-all duration-200 cursor-pointer hover:shadow-md',
-          isSelected && 'ring-2 ring-primary-500 shadow-lg',
-          viewMode === 'grid' ? 'p-4' : 'p-3'
+          "transition-all duration-200 cursor-pointer hover:shadow-md",
+          isSelected && "ring-2 ring-primary-500 shadow-lg",
+          viewMode === "grid" ? "p-4" : "p-3",
         )}
         onClick={(e) => {
           if (!isEditing) {
-            handleSelectItem(file.id, e.ctrlKey || e.metaKey)
+            handleSelectItem(file.id, e.ctrlKey || e.metaKey);
           }
         }}
         onDoubleClick={() => {
-          if (file.type === 'file') {
-            onOpenFile(file)
+          if (file.type === "file") {
+            onOpenFile(file);
           }
         }}
       >
-        {viewMode === 'grid' ? (
+        {viewMode === "grid" ? (
           <div className="text-center space-y-3">
             <div className="relative mx-auto w-16 h-16 flex items-center justify-center">
-              {file.type === 'folder' ? (
+              {file.type === "folder" ? (
                 <FolderIcon className="w-16 h-16 text-blue-500" />
               ) : (
                 <div className="relative">
                   {file.thumbnail ? (
-                    <img 
-                      src={file.thumbnail} 
-                      alt={file.name}
-                      className="w-16 h-16 object-cover rounded border"
-                    />
+                    <img src={file.thumbnail} alt={file.name} className="w-16 h-16 object-cover rounded border" />
                   ) : (
                     <DocumentIcon className="w-16 h-16 text-red-500" />
                   )}
@@ -232,11 +224,11 @@ export default function FileManager({
                   )}
                 </div>
               )}
-              
+
               <button
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onToggleFavorite(file.id)
+                  e.stopPropagation();
+                  onToggleFavorite(file.id);
                 }}
                 className="absolute -top-1 -left-1"
               >
@@ -247,7 +239,7 @@ export default function FileManager({
                 )}
               </button>
             </div>
-            
+
             <div className="space-y-1">
               {isEditing ? (
                 <input
@@ -256,10 +248,10 @@ export default function FileManager({
                   onChange={(e) => setEditingName(e.target.value)}
                   onBlur={() => handleRename(file.id)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleRename(file.id)
-                    if (e.key === 'Escape') {
-                      setEditingItem(null)
-                      setEditingName('')
+                    if (e.key === "Enter") handleRename(file.id);
+                    if (e.key === "Escape") {
+                      setEditingItem(null);
+                      setEditingName("");
                     }
                   }}
                   className="input input-sm w-full text-center"
@@ -270,15 +262,15 @@ export default function FileManager({
                   {file.name}
                 </p>
               )}
-              
+
               <div className="flex items-center justify-center space-x-2 text-xs text-neutral-500">
                 {file.size && <span>{formatFileSize(file.size)}</span>}
                 <span>{formatDate(file.modifiedAt)}</span>
               </div>
-              
+
               {file.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 justify-center">
-                  {file.tags.slice(0, 2).map(tag => (
+                  {file.tags.slice(0, 2).map((tag) => (
                     <Badge key={tag} size="sm" className="bg-neutral-100 text-neutral-600">
                       {tag}
                     </Badge>
@@ -295,7 +287,7 @@ export default function FileManager({
         ) : (
           <div className="flex items-center space-x-3">
             <div className="flex-shrink-0">
-              {file.type === 'folder' ? (
+              {file.type === "folder" ? (
                 <FolderIcon className="w-8 h-8 text-blue-500" />
               ) : (
                 <div className="relative">
@@ -308,7 +300,7 @@ export default function FileManager({
                 </div>
               )}
             </div>
-            
+
             <div className="flex-1 min-w-0">
               {isEditing ? (
                 <input
@@ -317,10 +309,10 @@ export default function FileManager({
                   onChange={(e) => setEditingName(e.target.value)}
                   onBlur={() => handleRename(file.id)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleRename(file.id)
-                    if (e.key === 'Escape') {
-                      setEditingItem(null)
-                      setEditingName('')
+                    if (e.key === "Enter") handleRename(file.id);
+                    if (e.key === "Escape") {
+                      setEditingItem(null);
+                      setEditingName("");
                     }
                   }}
                   className="input input-sm w-full"
@@ -331,13 +323,13 @@ export default function FileManager({
                   {file.name}
                 </p>
               )}
-              
+
               <div className="flex items-center space-x-4 text-xs text-neutral-500">
                 {file.size && <span>{formatFileSize(file.size)}</span>}
                 <span>{formatDate(file.modifiedAt)}</span>
                 {file.tags.length > 0 && (
                   <div className="flex space-x-1">
-                    {file.tags.slice(0, 3).map(tag => (
+                    {file.tags.slice(0, 3).map((tag) => (
                       <Badge key={tag} size="sm" className="bg-neutral-100 text-neutral-600">
                         {tag}
                       </Badge>
@@ -346,12 +338,12 @@ export default function FileManager({
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <button
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onToggleFavorite(file.id)
+                  e.stopPropagation();
+                  onToggleFavorite(file.id);
                 }}
               >
                 {file.isFavorite ? (
@@ -360,7 +352,7 @@ export default function FileManager({
                   <StarIcon className="w-4 h-4 text-neutral-300 hover:text-yellow-500" />
                 )}
               </button>
-              
+
               <Dropdown
                 trigger={
                   <button className="p-1 hover:bg-neutral-100 rounded">
@@ -369,57 +361,57 @@ export default function FileManager({
                 }
                 items={[
                   {
-                    id: 'open',
-                    label: 'Open',
+                    id: "open",
+                    label: "Open",
                     icon: <EyeIcon className="w-4 h-4" />,
-                    onClick: () => onOpenFile(file)
+                    onClick: () => onOpenFile(file),
                   },
                   {
-                    id: 'rename',
-                    label: 'Rename',
+                    id: "rename",
+                    label: "Rename",
                     icon: <PencilIcon className="w-4 h-4" />,
                     onClick: () => {
-                      setEditingItem(file.id)
-                      setEditingName(file.name)
-                    }
+                      setEditingItem(file.id);
+                      setEditingName(file.name);
+                    },
                   },
                   {
-                    id: 'duplicate',
-                    label: 'Duplicate',
+                    id: "duplicate",
+                    label: "Duplicate",
                     icon: <DocumentDuplicateIcon className="w-4 h-4" />,
-                    onClick: () => {}
+                    onClick: () => {},
                   },
                   {
-                    id: 'download',
-                    label: 'Download',
+                    id: "download",
+                    label: "Download",
                     icon: <ArrowDownTrayIcon className="w-4 h-4" />,
-                    onClick: () => {}
+                    onClick: () => {},
                   },
                   {
-                    id: 'share',
-                    label: 'Share',
+                    id: "share",
+                    label: "Share",
                     icon: <ShareIcon className="w-4 h-4" />,
-                    onClick: () => {}
+                    onClick: () => {},
                   },
                   {
-                    id: 'separator',
-                    label: '',
-                    divider: true
+                    id: "separator",
+                    label: "",
+                    divider: true,
                   },
                   {
-                    id: 'delete',
-                    label: 'Delete',
+                    id: "delete",
+                    label: "Delete",
                     icon: <TrashIcon className="w-4 h-4" />,
-                    onClick: () => onDeleteItems([file.id])
-                  }
+                    onClick: () => onDeleteItems([file.id]),
+                  },
                 ]}
               />
             </div>
           </div>
         )}
       </Card>
-    )
-  }
+    );
+  };
 
   return (
     <Modal isOpen={isVisible} onClose={onClose} size="full">
@@ -431,24 +423,18 @@ export default function FileManager({
               <FolderOpenIcon className="w-6 h-6 mr-2" />
               File Manager
             </h2>
-            
+
             <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setShowNewFolderModal(true)}
-                className="btn btn-secondary btn-sm"
-              >
+              <button onClick={() => setShowNewFolderModal(true)} className="btn btn-secondary btn-sm">
                 <FolderPlusIcon className="w-4 h-4 mr-1" />
                 New Folder
               </button>
-              
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="btn btn-primary btn-sm"
-              >
+
+              <button onClick={() => fileInputRef.current?.click()} className="btn btn-primary btn-sm">
                 <ArrowUpTrayIcon className="w-4 h-4 mr-1" />
                 Upload Files
               </button>
-              
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -459,7 +445,7 @@ export default function FileManager({
               />
             </div>
           </div>
-          
+
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-sm text-neutral-600 mb-4">
             {currentPath.map((path, index) => (
@@ -469,7 +455,7 @@ export default function FileManager({
               </React.Fragment>
             ))}
           </nav>
-          
+
           {/* Search and Controls */}
           <div className="flex items-center justify-between space-x-4">
             <div className="flex items-center space-x-4 flex-1">
@@ -483,7 +469,7 @@ export default function FileManager({
                   className="input pl-10 w-full"
                 />
               </div>
-              
+
               <select
                 value={filterBy}
                 onChange={(e) => setFilterBy(e.target.value as typeof filterBy)}
@@ -495,7 +481,7 @@ export default function FileManager({
                 <option value="protected">Protected</option>
               </select>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <select
                 value={sortBy}
@@ -507,29 +493,29 @@ export default function FileManager({
                 <option value="size">Size</option>
                 <option value="type">Type</option>
               </select>
-              
+
               <button
-                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                onClick={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
                 className="btn btn-secondary btn-sm"
               >
                 <ArrowsUpDownIcon className="w-4 h-4" />
               </button>
-              
+
               <div className="flex border border-neutral-300 rounded">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   className={cn(
-                    'p-2 transition-colors',
-                    viewMode === 'grid' ? 'bg-primary-500 text-white' : 'hover:bg-neutral-100'
+                    "p-2 transition-colors",
+                    viewMode === "grid" ? "bg-primary-500 text-white" : "hover:bg-neutral-100",
                   )}
                 >
                   <Squares2X2Icon className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setViewMode("list")}
                   className={cn(
-                    'p-2 transition-colors',
-                    viewMode === 'list' ? 'bg-primary-500 text-white' : 'hover:bg-neutral-100'
+                    "p-2 transition-colors",
+                    viewMode === "list" ? "bg-primary-500 text-white" : "hover:bg-neutral-100",
                   )}
                 >
                   <ListBulletIcon className="w-4 h-4" />
@@ -538,50 +524,46 @@ export default function FileManager({
             </div>
           </div>
         </div>
-        
+
         {/* File Grid/List */}
         <div className="flex-1 p-6 overflow-auto">
           {sortedFiles.length === 0 ? (
             <div className="text-center py-12">
               <FolderIcon className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
               <p className="text-neutral-500">
-                {searchQuery ? 'No files found matching your search.' : 'This folder is empty.'}
+                {searchQuery ? "No files found matching your search." : "This folder is empty."}
               </p>
             </div>
           ) : (
-            <div className={cn(
-              viewMode === 'grid' 
-                ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4'
-                : 'space-y-2'
-            )}>
-              {sortedFiles.map(file => (
+            <div
+              className={cn(
+                viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+                  : "space-y-2",
+              )}
+            >
+              {sortedFiles.map((file) => (
                 <FileCard key={file.id} file={file} />
               ))}
             </div>
           )}
         </div>
-        
+
         {/* Selection Actions */}
         {selectedItems.length > 0 && (
           <div className="p-4 border-t border-neutral-200 bg-neutral-50">
             <div className="flex items-center justify-between">
               <span className="text-sm text-neutral-600">
-                {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} selected
+                {selectedItems.length} item{selectedItems.length > 1 ? "s" : ""} selected
               </span>
-              
+
               <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => onDeleteItems(selectedItems)}
-                  className="btn btn-secondary btn-sm text-red-600"
-                >
+                <button onClick={() => onDeleteItems(selectedItems)} className="btn btn-secondary btn-sm text-red-600">
                   <TrashIcon className="w-4 h-4 mr-1" />
                   Delete
                 </button>
-                
-                <button
-                  onClick={() => setSelectedItems([])}
-                  className="btn btn-secondary btn-sm"
-                >
+
+                <button onClick={() => setSelectedItems([])} className="btn btn-secondary btn-sm">
                   Clear Selection
                 </button>
               </div>
@@ -589,13 +571,13 @@ export default function FileManager({
           </div>
         )}
       </div>
-      
+
       {/* New Folder Modal */}
       {showNewFolderModal && (
         <Modal isOpen={showNewFolderModal} onClose={() => setShowNewFolderModal(false)} size="sm">
           <div className="p-6">
             <h3 className="text-lg font-semibold mb-4">Create New Folder</h3>
-            
+
             <input
               type="text"
               value={newFolderName}
@@ -603,24 +585,17 @@ export default function FileManager({
               placeholder="Folder name"
               className="input w-full mb-4"
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleCreateFolder()
-                if (e.key === 'Escape') setShowNewFolderModal(false)
+                if (e.key === "Enter") handleCreateFolder();
+                if (e.key === "Escape") setShowNewFolderModal(false);
               }}
               autoFocus
             />
-            
+
             <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowNewFolderModal(false)}
-                className="btn btn-secondary"
-              >
+              <button onClick={() => setShowNewFolderModal(false)} className="btn btn-secondary">
                 Cancel
               </button>
-              <button
-                onClick={handleCreateFolder}
-                disabled={!newFolderName.trim()}
-                className="btn btn-primary"
-              >
+              <button onClick={handleCreateFolder} disabled={!newFolderName.trim()} className="btn btn-primary">
                 Create
               </button>
             </div>
@@ -628,5 +603,5 @@ export default function FileManager({
         </Modal>
       )}
     </Modal>
-  )
+  );
 }

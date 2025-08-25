@@ -1,198 +1,190 @@
-'use client'
+"use client";
 
-import { useState, useRef } from 'react'
-import { useUI } from '@/store/ui-store'
-import { usePDF } from '@/store/pdf-store'
-import {
-  XMarkIcon,
-  PencilIcon,
-  PhotoIcon,
-  DocumentTextIcon,
-  TrashIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
+import { useState, useRef } from "react";
+import { useUI } from "@/store/ui-store";
+import { usePDF } from "@/store/pdf-store";
+import { XMarkIcon, PencilIcon, PhotoIcon, DocumentTextIcon, TrashIcon, CheckIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 interface Signature {
-  id: string
-  name: string
-  type: 'draw' | 'type' | 'image'
-  data: string // Base64 for draw/image, text for type
-  createdAt: Date
+  id: string;
+  name: string;
+  type: "draw" | "type" | "image";
+  data: string; // Base64 for draw/image, text for type
+  createdAt: Date;
 }
 
 export default function SignModal() {
-  const { state: uiState, dispatch: uiDispatch } = useUI()
-  const { state: pdfState, dispatch: pdfDispatch } = usePDF()
-  const [activeTab, setActiveTab] = useState<'draw' | 'type' | 'image' | 'saved'>('draw')
-  const [signatures, setSignatures] = useState<Signature[]>([])
-  const [selectedSignature, setSelectedSignature] = useState<string | null>(null)
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [typedSignature, setTypedSignature] = useState('')
-  const [signatureFont, setSignatureFont] = useState('cursive')
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { state: uiState, dispatch: uiDispatch } = useUI();
+  const { state: pdfState, dispatch: pdfDispatch } = usePDF();
+  const [activeTab, setActiveTab] = useState<"draw" | "type" | "image" | "saved">("draw");
+  const [signatures, setSignatures] = useState<Signature[]>([]);
+  const [selectedSignature, setSelectedSignature] = useState<string | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [typedSignature, setTypedSignature] = useState("");
+  const [signatureFont, setSignatureFont] = useState("cursive");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!uiState.modals.sign) return null
+  if (!uiState.modals.sign) return null;
 
   const closeModal = () => {
-    uiDispatch({ type: 'CLOSE_MODAL', payload: 'sign' })
-    setActiveTab('draw')
-    setSelectedSignature(null)
-    setTypedSignature('')
-    clearCanvas()
-  }
+    uiDispatch({ type: "CLOSE_MODAL", payload: "sign" });
+    setActiveTab("draw");
+    setSelectedSignature(null);
+    setTypedSignature("");
+    clearCanvas();
+  };
 
   const clearCanvas = () => {
-    const canvas = canvasRef.current
+    const canvas = canvasRef.current;
     if (canvas) {
-      const ctx = canvas.getContext('2d')
+      const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
     }
-  }
+  };
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    setIsDrawing(true)
-    const canvas = canvasRef.current
+    setIsDrawing(true);
+    const canvas = canvasRef.current;
     if (canvas) {
-      const rect = canvas.getBoundingClientRect()
-      const ctx = canvas.getContext('2d')
+      const rect = canvas.getBoundingClientRect();
+      const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.beginPath()
-        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top)
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
       }
     }
-  }
+  };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return
-    
-    const canvas = canvasRef.current
+    if (!isDrawing) return;
+
+    const canvas = canvasRef.current;
     if (canvas) {
-      const rect = canvas.getBoundingClientRect()
-      const ctx = canvas.getContext('2d')
+      const rect = canvas.getBoundingClientRect();
+      const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top)
-        ctx.stroke()
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
       }
     }
-  }
+  };
 
   const stopDrawing = () => {
-    setIsDrawing(false)
-  }
+    setIsDrawing(false);
+  };
 
   const saveDrawnSignature = () => {
-    const canvas = canvasRef.current
+    const canvas = canvasRef.current;
     if (canvas) {
-      const dataURL = canvas.toDataURL()
+      const dataURL = canvas.toDataURL();
       const newSignature: Signature = {
         id: Date.now().toString(),
-        name: `Drawn Signature ${signatures.filter(s => s.type === 'draw').length + 1}`,
-        type: 'draw',
+        name: `Drawn Signature ${signatures.filter((s) => s.type === "draw").length + 1}`,
+        type: "draw",
         data: dataURL,
-        createdAt: new Date()
-      }
-      setSignatures(prev => [...prev, newSignature])
-      toast.success('Signature saved!')
-      clearCanvas()
+        createdAt: new Date(),
+      };
+      setSignatures((prev) => [...prev, newSignature]);
+      toast.success("Signature saved!");
+      clearCanvas();
     }
-  }
+  };
 
   const saveTypedSignature = () => {
     if (!typedSignature.trim()) {
-      toast.error('Please enter your signature text')
-      return
+      toast.error("Please enter your signature text");
+      return;
     }
 
     const newSignature: Signature = {
       id: Date.now().toString(),
       name: `Typed Signature: ${typedSignature}`,
-      type: 'type',
+      type: "type",
       data: typedSignature,
-      createdAt: new Date()
-    }
-    setSignatures(prev => [...prev, newSignature])
-    toast.success('Signature saved!')
-    setTypedSignature('')
-  }
+      createdAt: new Date(),
+    };
+    setSignatures((prev) => [...prev, newSignature]);
+    toast.success("Signature saved!");
+    setTypedSignature("");
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file')
-        return
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
       }
 
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (event) => {
-        const dataURL = event.target?.result as string
+        const dataURL = event.target?.result as string;
         const newSignature: Signature = {
           id: Date.now().toString(),
           name: `Image Signature: ${file.name}`,
-          type: 'image',
+          type: "image",
           data: dataURL,
-          createdAt: new Date()
-        }
-        setSignatures(prev => [...prev, newSignature])
-        toast.success('Signature saved!')
-      }
-      reader.readAsDataURL(file)
+          createdAt: new Date(),
+        };
+        setSignatures((prev) => [...prev, newSignature]);
+        toast.success("Signature saved!");
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const deleteSignature = (id: string) => {
-    setSignatures(prev => prev.filter(sig => sig.id !== id))
+    setSignatures((prev) => prev.filter((sig) => sig.id !== id));
     if (selectedSignature === id) {
-      setSelectedSignature(null)
+      setSelectedSignature(null);
     }
-    toast.success('Signature deleted')
-  }
+    toast.success("Signature deleted");
+  };
 
   const applySignature = () => {
     if (!selectedSignature) {
-      toast.error('Please select a signature')
-      return
+      toast.error("Please select a signature");
+      return;
     }
 
-    const signature = signatures.find(s => s.id === selectedSignature)
-    if (!signature) return
+    const signature = signatures.find((s) => s.id === selectedSignature);
+    if (!signature) return;
 
     // TODO: Apply signature to PDF
-    toast.success('Signature applied to document!')
-    closeModal()
-  }
+    toast.success("Signature applied to document!");
+    closeModal();
+  };
 
   const renderSignaturePreview = (signature: Signature) => {
     switch (signature.type) {
-      case 'draw':
-      case 'image':
+      case "draw":
+      case "image":
         return (
           <img
             src={signature.data}
             alt={signature.name}
             className="w-full h-16 object-contain bg-white border rounded"
           />
-        )
-      case 'type':
+        );
+      case "type":
         return (
           <div
             className={`w-full h-16 flex items-center justify-center bg-white border rounded text-2xl ${
-              signatureFont === 'cursive' ? 'font-cursive' : 
-              signatureFont === 'script' ? 'font-script' : 'font-elegant'
+              signatureFont === "cursive" ? "font-cursive" : signatureFont === "script" ? "font-script" : "font-elegant"
             }`}
             style={{ fontFamily: signatureFont }}
           >
             {signature.data}
           </div>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -200,10 +192,7 @@ export default function SignModal() {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Sign Document</h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
@@ -211,44 +200,44 @@ export default function SignModal() {
         {/* Tabs */}
         <div className="flex border-b border-gray-200">
           <button
-            onClick={() => setActiveTab('draw')}
+            onClick={() => setActiveTab("draw")}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'draw'
-                ? 'border-adobe-blue text-adobe-blue'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+              activeTab === "draw"
+                ? "border-adobe-blue text-adobe-blue"
+                : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             <PencilIcon className="w-4 h-4 inline mr-2" />
             Draw
           </button>
           <button
-            onClick={() => setActiveTab('type')}
+            onClick={() => setActiveTab("type")}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'type'
-                ? 'border-adobe-blue text-adobe-blue'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+              activeTab === "type"
+                ? "border-adobe-blue text-adobe-blue"
+                : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             <DocumentTextIcon className="w-4 h-4 inline mr-2" />
             Type
           </button>
           <button
-            onClick={() => setActiveTab('image')}
+            onClick={() => setActiveTab("image")}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'image'
-                ? 'border-adobe-blue text-adobe-blue'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+              activeTab === "image"
+                ? "border-adobe-blue text-adobe-blue"
+                : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             <PhotoIcon className="w-4 h-4 inline mr-2" />
             Upload
           </button>
           <button
-            onClick={() => setActiveTab('saved')}
+            onClick={() => setActiveTab("saved")}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'saved'
-                ? 'border-adobe-blue text-adobe-blue'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+              activeTab === "saved"
+                ? "border-adobe-blue text-adobe-blue"
+                : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             Saved ({signatures.length})
@@ -257,7 +246,7 @@ export default function SignModal() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'draw' && (
+          {activeTab === "draw" && (
             <div className="space-y-4">
               <div className="text-center">
                 <p className="text-gray-600 mb-4">Draw your signature in the box below</p>
@@ -266,7 +255,7 @@ export default function SignModal() {
                   width={600}
                   height={200}
                   className="border-2 border-gray-300 rounded-lg cursor-crosshair mx-auto"
-                  style={{ touchAction: 'none' }}
+                  style={{ touchAction: "none" }}
                   onMouseDown={startDrawing}
                   onMouseMove={draw}
                   onMouseUp={stopDrawing}
@@ -290,12 +279,10 @@ export default function SignModal() {
             </div>
           )}
 
-          {activeTab === 'type' && (
+          {activeTab === "type" && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Type your signature
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type your signature</label>
                 <input
                   type="text"
                   value={typedSignature}
@@ -305,41 +292,45 @@ export default function SignModal() {
                   style={{ fontFamily: signatureFont }}
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Font Style
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Font Style</label>
                 <div className="grid grid-cols-3 gap-3">
                   <button
-                    onClick={() => setSignatureFont('cursive')}
+                    onClick={() => setSignatureFont("cursive")}
                     className={`p-3 border rounded-lg text-center transition-colors ${
-                      signatureFont === 'cursive'
-                        ? 'border-adobe-blue bg-adobe-blue/5'
-                        : 'border-gray-300 hover:border-gray-400'
+                      signatureFont === "cursive"
+                        ? "border-adobe-blue bg-adobe-blue/5"
+                        : "border-gray-300 hover:border-gray-400"
                     }`}
                   >
-                    <span className="text-xl" style={{ fontFamily: 'cursive' }}>Cursive</span>
+                    <span className="text-xl" style={{ fontFamily: "cursive" }}>
+                      Cursive
+                    </span>
                   </button>
                   <button
-                    onClick={() => setSignatureFont('serif')}
+                    onClick={() => setSignatureFont("serif")}
                     className={`p-3 border rounded-lg text-center transition-colors ${
-                      signatureFont === 'serif'
-                        ? 'border-adobe-blue bg-adobe-blue/5'
-                        : 'border-gray-300 hover:border-gray-400'
+                      signatureFont === "serif"
+                        ? "border-adobe-blue bg-adobe-blue/5"
+                        : "border-gray-300 hover:border-gray-400"
                     }`}
                   >
-                    <span className="text-xl" style={{ fontFamily: 'serif' }}>Serif</span>
+                    <span className="text-xl" style={{ fontFamily: "serif" }}>
+                      Serif
+                    </span>
                   </button>
                   <button
-                    onClick={() => setSignatureFont('monospace')}
+                    onClick={() => setSignatureFont("monospace")}
                     className={`p-3 border rounded-lg text-center transition-colors ${
-                      signatureFont === 'monospace'
-                        ? 'border-adobe-blue bg-adobe-blue/5'
-                        : 'border-gray-300 hover:border-gray-400'
+                      signatureFont === "monospace"
+                        ? "border-adobe-blue bg-adobe-blue/5"
+                        : "border-gray-300 hover:border-gray-400"
                     }`}
                   >
-                    <span className="text-xl" style={{ fontFamily: 'monospace' }}>Mono</span>
+                    <span className="text-xl" style={{ fontFamily: "monospace" }}>
+                      Mono
+                    </span>
                   </button>
                 </div>
               </div>
@@ -347,10 +338,7 @@ export default function SignModal() {
               {typedSignature && (
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-                  <div
-                    className="text-3xl text-center py-4"
-                    style={{ fontFamily: signatureFont }}
-                  >
+                  <div className="text-3xl text-center py-4" style={{ fontFamily: signatureFont }}>
                     {typedSignature}
                   </div>
                 </div>
@@ -368,7 +356,7 @@ export default function SignModal() {
             </div>
           )}
 
-          {activeTab === 'image' && (
+          {activeTab === "image" && (
             <div className="space-y-4">
               <div className="text-center">
                 <p className="text-gray-600 mb-4">Upload an image of your signature</p>
@@ -386,21 +374,17 @@ export default function SignModal() {
                   <PhotoIcon className="w-5 h-5 inline mr-2" />
                   Choose Image
                 </button>
-                <p className="text-sm text-gray-500 mt-2">
-                  Supported formats: JPG, PNG, GIF
-                </p>
+                <p className="text-sm text-gray-500 mt-2">Supported formats: JPG, PNG, GIF</p>
               </div>
             </div>
           )}
 
-          {activeTab === 'saved' && (
+          {activeTab === "saved" && (
             <div className="space-y-4">
               {signatures.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500">No saved signatures yet</p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Create signatures using the Draw, Type, or Upload tabs
-                  </p>
+                  <p className="text-sm text-gray-400 mt-1">Create signatures using the Draw, Type, or Upload tabs</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
@@ -409,8 +393,8 @@ export default function SignModal() {
                       key={signature.id}
                       className={`relative p-4 border-2 rounded-lg cursor-pointer transition-colors ${
                         selectedSignature === signature.id
-                          ? 'border-adobe-blue bg-adobe-blue/5'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? "border-adobe-blue bg-adobe-blue/5"
+                          : "border-gray-200 hover:border-gray-300"
                       }`}
                       onClick={() => setSelectedSignature(signature.id)}
                     >
@@ -419,28 +403,22 @@ export default function SignModal() {
                           <CheckIcon className="w-4 h-4 text-white" />
                         </div>
                       )}
-                      
+
                       <button
                         onClick={(e) => {
-                          e.stopPropagation()
-                          deleteSignature(signature.id)
+                          e.stopPropagation();
+                          deleteSignature(signature.id);
                         }}
                         className="absolute top-2 left-2 p-1 text-gray-400 hover:text-red-600 transition-colors"
                       >
                         <TrashIcon className="w-4 h-4" />
                       </button>
-                      
-                      <div className="mt-6">
-                        {renderSignaturePreview(signature)}
-                      </div>
-                      
+
+                      <div className="mt-6">{renderSignaturePreview(signature)}</div>
+
                       <div className="mt-3">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {signature.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {signature.createdAt.toLocaleDateString()}
-                        </p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{signature.name}</p>
+                        <p className="text-xs text-gray-500">{signature.createdAt.toLocaleDateString()}</p>
                       </div>
                     </div>
                   ))}
@@ -453,9 +431,7 @@ export default function SignModal() {
         {/* Footer */}
         <div className="flex justify-between items-center p-6 border-t border-gray-200">
           <div className="text-sm text-gray-600">
-            {selectedSignature && (
-              <span>Signature selected and ready to apply</span>
-            )}
+            {selectedSignature && <span>Signature selected and ready to apply</span>}
           </div>
           <div className="flex space-x-3">
             <button
@@ -475,5 +451,5 @@ export default function SignModal() {
         </div>
       </div>
     </div>
-  )
+  );
 }
