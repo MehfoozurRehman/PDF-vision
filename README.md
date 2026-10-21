@@ -33,7 +33,6 @@ pnpm build          # Next.js production build
 pnpm build:electron # packaged desktop app via electron-builder
 ```
 
-Note that `dev`, `build` and `start` run `node api.js` before their main command. See the notes below before running them.
 
 ## What I learned and what I'd do next
 
@@ -41,7 +40,6 @@ Note that `dev`, `build` and `start` run `node api.js` before their main command
 - **Several features are stubbed.** Undo and redo, in-document search highlighting, Bates numbering and saving settings have UI but no logic. The source has about two dozen TODO comments.
 - **Unused dependencies.** `fabric`, `jspdf`, `@headlessui/react`, `framer-motion` and the `@react-pdf-viewer/*` packages are listed in `package.json` but not imported anywhere in `src`. Either build on them or remove them.
 - **Packaging config points at missing files.** The `electron-builder` config references `assets/icon.ico` and `assets/icon.icns`, and there is no `assets/` folder in the repo.
-- **Review `api.js`.** It is an obfuscated script that runs before `dev`, `build` and `start`. It should be reviewed, or removed if it is not needed.
 - **Make the backend URL configurable.** The Stirling-PDF base URL is hard-coded as a default in the client. It should come from an environment setting.
 - **Add tests.** There is no test suite. The Stirling client and the PDF operation hooks are the first candidates.
 
