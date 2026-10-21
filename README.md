@@ -1,54 +1,49 @@
-# PDF Vision: Professional Desktop PDF Editor & Annotation Suite
+# PDF Vision
 
-A cross-platform desktop PDF editor, annotation suite, electronic signature signer, and document manipulation tool built with Electron, Next.js 14, React 18, Fabric.js, PDF-Lib, and `@react-pdf-viewer`.
+A desktop PDF workspace: an Electron shell around a Next.js 14 interface, with a PDF viewer, signature tools, and a separate Stirling-PDF server for the heavy document operations.
 
-## Overview
+## The problem
 
-`PDF-vision` delivers desktop-grade PDF productivity tools:
-- **Interactive Annotation & Drawing**: Vector canvas overlay with Fabric.js (`fabric`) for highlighting, redaction, and shape drawing.
-- **Document Manipulation**: Page reordering, splitting, merging, and stamping using `pdf-lib` and `jspdf`.
-- **Digital Signatures**: Cryptographic pass/cert signing integration with `node-forge`.
-- **PDF Viewing**: Comprehensive pagination, text search, and zooming via `@react-pdf-viewer/core`.
+Everyday PDF work (viewing, merging, splitting, exporting, signing) is usually spread across web tools and paid desktop editors. PDF Vision brings these tasks into one desktop window. The interface and viewer run locally in the renderer, and document processing is delegated to a backend, so the project is a study in splitting responsibilities between a desktop shell, a UI layer and a PDF engine.
 
-## Tech Stack
+## What it does
 
-- **Desktop Framework**: [Electron](https://www.electronjs.org/) (v27) & [Next.js](https://nextjs.org/) (v14)
-- **PDF Engines**: `pdf-lib`, `jspdf`, `pdfjs-dist`, `@react-pdf-viewer/core`
-- **Canvas & Drawing**: Fabric.js (`fabric`)
-- **State Management**: Zustand
-- **Styling**: Tailwind CSS (v3), Framer Motion, Heroicons
+- **Viewing**: `PDFViewer.tsx` renders the active document with `pdfjs-dist` (pdf.js), loading its worker from `/pdf.worker.min.js`.
+- **Merge, split and export**: `MergeModal`, `SplitModal` and `ExportModal` call the Stirling-PDF API through a `useStirlingAPI` hook. The same hook covers compression, watermarking, password changes and PDF-to-image conversion.
+- **Signing (in progress)**: `SignModal` lets you draw or type a signature and pick a font. The desktop shell can generate a 2048-bit RSA key pair and an X.509 certificate with `node-forge`. Applying the signature to the PDF is still a TODO.
+- **Native desktop integration**: Open and save dialogs, message boxes, and app version and path lookups are exposed to the renderer through a narrow `contextBridge` API in `preload.js`.
+- **Document workspace panels**: Thumbnails, bookmarks, layers and annotations panels sit beside the viewer, with a quick-actions toolbar and a tools menu.
 
-## Prerequisites
+## How it's built
 
-- Node.js (v18 or higher recommended)
-- Package manager (`pnpm` or `npm`)
+- **Shell**: Electron 27. `main.js` opens a `BrowserWindow`. In development it loads `http://localhost:3000`. In production it loads the static export from `out/`.
+- **Renderer**: Next.js 14 with `output: "export"`, React 18, Tailwind CSS 3 and React Hot Toast. State lives in two React context stores with `useReducer` (`src/store/pdf-store.tsx` and `src/store/ui-store.tsx`).
+- **Decision 1: PDF engine behind an HTTP boundary.** Heavy operations go to a Stirling-PDF server. `src/api/stirling-client.ts` is a typed client with a default base URL of `http://localhost:8081`, and `src/api/endpoints.ts` maps each operation to its route. `INTEGRATION_PLAN.md` records the reasoning for this.
+- **Decision 2: privileged code stays in the preload.** Key generation runs in `preload.js` and is exposed as `cryptoAPI`, so the renderer never loads `node-forge` or touches Node APIs directly.
 
-## Getting Started
+## Running it locally
 
-1. **Install dependencies**:
-   ```bash
-   pnpm install
-   # or
-   npm install
-   ```
+Requires Node.js 18 or later, and a Stirling-PDF server on port 8081 for merge, split and export. Stirling-PDF is not included in this repo.
 
-2. **Run in Development Mode**:
-   ```bash
-   pnpm dev
-   ```
+```bash
+pnpm install        # or: npm install
+pnpm dev:next       # web UI only, at http://localhost:3000
+pnpm dev            # Next.js and Electron together
+pnpm build          # Next.js production build
+pnpm build:electron # packaged desktop app via electron-builder
+```
 
-3. **Run Web Client Only**:
-   ```bash
-   pnpm dev:next
-   ```
+Note that `dev`, `build` and `start` run `node api.js` before their main command. See the notes below before running them.
 
-## Available Scripts
+## What I learned and what I'd do next
 
-- `pnpm dev` - Concurrently starts Next.js development server and Electron shell.
-- `pnpm build` - Compiles the Next.js production build.
-- `pnpm build:electron` - Bundles the Electron desktop executable via `electron-builder`.
-- `pnpm pack:win` - Packages a Windows installer.
-- `pnpm dist` - Generates distribution installers across platforms.
+- **Signing is half built.** Key and certificate generation work, but `SignModal` does not yet place the signature on the document.
+- **Several features are stubbed.** Undo and redo, in-document search highlighting, Bates numbering and saving settings have UI but no logic. The source has about two dozen TODO comments.
+- **Unused dependencies.** `fabric`, `jspdf`, `@headlessui/react`, `framer-motion` and the `@react-pdf-viewer/*` packages are listed in `package.json` but not imported anywhere in `src`. Either build on them or remove them.
+- **Packaging config points at missing files.** The `electron-builder` config references `assets/icon.ico` and `assets/icon.icns`, and there is no `assets/` folder in the repo.
+- **Review `api.js`.** It is an obfuscated script that runs before `dev`, `build` and `start`. It should be reviewed, or removed if it is not needed.
+- **Make the backend URL configurable.** The Stirling-PDF base URL is hard-coded as a default in the client. It should come from an environment setting.
+- **Add tests.** There is no test suite. The Stirling client and the PDF operation hooks are the first candidates.
 
 ## Author
 
