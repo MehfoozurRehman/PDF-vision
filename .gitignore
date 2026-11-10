@@ -2,4 +2,6 @@ node_modules
 build
 dist
 .next
-config.bat
+
+.env*
+!.env.example
